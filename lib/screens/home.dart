@@ -30,6 +30,7 @@ class HomePage extends ConsumerWidget {
             child: userData.when(
               data: (users) {
                 return ListView.builder(
+                  shrinkWrap: true,
                   itemCount: users.length,
                   itemBuilder: (context, index) {
                     final user = users[index];

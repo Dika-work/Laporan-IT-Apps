@@ -24,7 +24,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: 'http://10.0.2.2:8080', // Ganti dengan URL backend Anda
+      baseUrl: 'http://10.3.80.4:8080', // Ganti dengan URL backend Anda
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
     ),

@@ -30,13 +30,14 @@ environment:
 dependencies:
   cupertino_icons: ^1.0.8
   dio: ^5.7.0
+  dropdown_button2: ^2.3.9
+  floating_snackbar: ^1.0.5
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
   flutter_riverpod: ^2.6.1
   go_router: ^14.6.1
-  http: ^1.2.2
   shared_preferences: ^2.3.3
 
 dev_dependencies:
