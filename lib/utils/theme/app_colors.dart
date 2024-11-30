@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 class AppColors {
   // App theme colors
   static const Color primary = Color(0xFF4b68ff);
+  static const Color primarySoft = Color(0xFF548DF3);
+  static const Color primaryExtraSoft = Color(0xFFEFF3FC);
   static const Color secondary = Color(0xFFFFE24B);
+  static const Color secondarySoft = Color(0xFF9D9D9D);
   static const Color accent = Color(0xFFb0c7ff);
 
   // Icon colors

@@ -1,39 +1,56 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:laporan/providers/auth_provider.dart';
-import 'package:laporan/utils/routes/routes.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:laporan/utils/routes/app_pages.dart';
 import 'package:laporan/utils/theme/theme.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const ProviderScope(child: MyApp()));
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  // Inisialisasi GetStorage
+  await GetStorage.init();
+
+  final localStorage = GetStorage();
+  final bool isFirstTime = localStorage.read('IsFirstTime') ?? true;
+
+  final bool isLoggedIn = localStorage.read('isLoggedIn') ?? false;
+
+  final String? typeUser = localStorage.read('type_user');
+
+  String initialLocation;
+  if (isFirstTime) {
+    localStorage.write('IsFirstTime', false);
+    initialLocation = Routes.LOGIN;
+  } else if (isLoggedIn) {
+    initialLocation =
+        typeUser == 'admin' ? Routes.HOME_ADMIN : Routes.HOME_USER;
+  } else {
+    initialLocation = Routes.LOGIN;
+  }
+
+  runApp(MyApp(initialRoute: initialLocation));
 }
 
-class MyApp extends ConsumerWidget {
-  const MyApp({super.key});
+class MyApp extends StatelessWidget {
+  final String initialRoute;
+  const MyApp({super.key, required this.initialRoute});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(routerProvider);
-
-    ref.listen(authProvider, (previous, next) {
-      if (next.isLoggedIn) {
-        router.go('/home'); // Pindahkan ke home jika login
-      } else {
-        router.go('/login'); // Pindahkan ke login jika logout
-      }
-    });
-    return MaterialApp.router(
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Data Viewer',
+      themeMode: ThemeMode.light,
       theme: AppTheme.lightTheme,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      routerConfig: router,
+      initialRoute: initialRoute,
+      getPages: AppPages.routes,
     );
   }
 }
