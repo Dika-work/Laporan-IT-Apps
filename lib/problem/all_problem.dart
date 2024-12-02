@@ -124,7 +124,10 @@ class _AllProblemState extends State<AllProblem> {
                       return Padding(
                         padding: const EdgeInsets.only(
                             bottom: CustomSize.spaceBtwItems),
-                        child: PresenceTile(title: problem['title']),
+                        child: PresenceTile(
+                          nama: problem['title'],
+                          divisi: 'Test',
+                        ),
                       );
                     },
                   );

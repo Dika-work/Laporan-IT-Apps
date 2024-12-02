@@ -258,7 +258,8 @@ class HomeAdmin extends GetView<HomeAdminController> {
                       padding:
                           EdgeInsets.only(bottom: CustomSize.spaceBtwItems),
                       child: PresenceTile(
-                        title: 'title test',
+                        nama: 'title test',
+                        divisi: 'IT',
                       ),
                     ),
                   )

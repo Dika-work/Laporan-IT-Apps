@@ -58,8 +58,8 @@ class LoginController extends GetxController {
 
         final fotoUserUrl = '${_dio.options.baseUrl}/${data['foto_user']}';
 
-        localStorage.write('type_user', data['type_user']);
         localStorage.write('username_hash', data['username_hash']);
+        localStorage.write('type_user', data['type_user']);
         localStorage.write('foto_user', fotoUserUrl);
 
         await fetchUsername();
