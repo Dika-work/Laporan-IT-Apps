@@ -260,6 +260,10 @@ class HomeAdmin extends GetView<HomeAdminController> {
                       child: PresenceTile(
                         nama: 'title test',
                         divisi: 'IT',
+                        deskripsi: 'asds',
+                        tglDiproses: '2024-11-30',
+                        priority: '4',
+                        statusKerja: '0',
                       ),
                     ),
                   )

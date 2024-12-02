@@ -77,47 +77,81 @@ class PostingBug extends GetView<PostingBugController> {
                   },
                   confirmText: 'Kembali');
             },
-            child: SizedBox(
+            child: Container(
               width: Get.width,
               height: Get.height,
+              padding:
+                  const EdgeInsets.only(left: 16.0, right: 16.0, top: 10.0),
+              margin: const EdgeInsets.only(top: 10.0),
+              color: Colors.white,
               child: Column(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.only(
-                        left: 16.0, right: 16.0, top: 10.0),
-                    margin: const EdgeInsets.only(top: 10.0),
-                    color: Colors.white,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const CircleAvatar(
-                          radius: 25,
-                          // backgroundImage: NetworkImage(fotoUser),
-                          backgroundColor: Colors.blue,
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Row(
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  username,
-                                ),
-                                Text(
-                                  divisi ?? '',
-                                  maxLines: 2,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
                   const SizedBox(height: 5),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const CircleAvatar(
+                        radius: 25,
+                        // backgroundImage: NetworkImage(fotoUser),
+                        backgroundColor: Colors.blue,
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '$username - $divisi',
+                            maxLines: 2,
+                          ),
+                          Wrap(
+                            spacing: CustomSize.sm,
+                            direction: Axis.horizontal,
+                            children: List.generate(
+                              4,
+                              (index) => Container(
+                                width: 80,
+                                height: 30,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                  Expanded(
+                    child: SizedBox(
+                      width: Get.width,
+                      child: TextFormField(
+                        controller: controller.lampiranC,
+                        keyboardType: TextInputType.text,
+                        maxLines: 10,
+                        minLines: 1,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        onChanged: (value) {
+                          controller.lampiranC.text == ''
+                              ? controller.textVisible.value = true
+                              : controller.textVisible.value = false;
+                        },
+                        decoration: InputDecoration(
+                          border:
+                              InputBorder.none, // Menghilangkan border utama
+                          enabledBorder: InputBorder
+                              .none, // Menghilangkan border saat enabled
+                          focusedBorder: InputBorder
+                              .none, // Menghilangkan border saat fokus
+                          disabledBorder: InputBorder
+                              .none, // Menghilangkan border saat disabled
+                          contentPadding:
+                              EdgeInsets.zero, // Menghilangkan padding default
+                          hintText: 'Apa yang mau di laporkan?',
+                          hintStyle: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                    ),
+                  )
                 ],
               ),
             ),

@@ -127,6 +127,10 @@ class _AllProblemState extends State<AllProblem> {
                         child: PresenceTile(
                           nama: problem['title'],
                           divisi: 'Test',
+                          deskripsi: 'asf',
+                          tglDiproses: '2024-11-30',
+                          priority: '4',
+                          statusKerja: '2',
                         ),
                       );
                     },

@@ -9,6 +9,7 @@ import 'package:laporan/utils/loadings/snackbar.dart';
 
 class PostingBugController extends GetxController {
   RxBool isLoading = false.obs;
+  RxBool textVisible = true.obs;
   final localStorage = GetStorage();
   final formKey = GlobalKey<FormState>();
   File? selectedImage;

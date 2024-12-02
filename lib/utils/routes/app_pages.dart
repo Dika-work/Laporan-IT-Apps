@@ -22,7 +22,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.HOME_USER,
-      page: () => const HomeUser(),
+      page: () => HomeUser(),
       binding: HomeUserBinding(),
       transition: Transition.fadeIn,
     ),
