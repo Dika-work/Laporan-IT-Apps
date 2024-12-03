@@ -12,7 +12,7 @@ class PostingBugController extends GetxController {
   RxBool textVisible = true.obs;
   final localStorage = GetStorage();
   final formKey = GlobalKey<FormState>();
-  File? selectedImage;
+  Rxn<File> selectedImage = Rxn<File>();
   RxString username = ''.obs;
   TextEditingController lampiranC = TextEditingController();
 
@@ -29,7 +29,7 @@ class PostingBugController extends GetxController {
     final XFile? image = await picker.pickImage(source: source);
 
     if (image != null) {
-      selectedImage = File(image.path);
+      selectedImage.value = File(image.path);
     } else {
       Get.snackbar(
         'Error',
@@ -38,6 +38,13 @@ class PostingBugController extends GetxController {
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
+    }
+  }
+
+  deleteImage() async {
+    if (selectedImage.value != null) {
+      await selectedImage.value!.delete();
+      selectedImage.value = null;
     }
   }
 
@@ -55,7 +62,7 @@ class PostingBugController extends GetxController {
         'username': username.value,
         'lampiran': lampiranC.text,
         'foto_user': await diomultipart.MultipartFile.fromFile(
-          selectedImage!.path,
+          selectedImage.value!.path,
         ),
       });
 
@@ -68,7 +75,7 @@ class PostingBugController extends GetxController {
         );
 
         lampiranC.clear();
-        selectedImage = null;
+        selectedImage.value = null;
 
         Get.back();
       } else {

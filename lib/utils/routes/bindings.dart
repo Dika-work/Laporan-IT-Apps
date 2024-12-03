@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:laporan/apk/controller/apk_categories_controller.dart';
 import 'package:laporan/laporan_bug/controller/posting_bug_controller.dart';
 
 import '../../home_admin/controller/home_admin_controller.dart';
@@ -47,6 +48,15 @@ class PostingBugBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<PostingBugController>(
       () => PostingBugController(),
+    );
+  }
+}
+
+class ApkCategoriesBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.lazyPut<ApkCategoriesController>(
+      () => ApkCategoriesController(),
     );
   }
 }

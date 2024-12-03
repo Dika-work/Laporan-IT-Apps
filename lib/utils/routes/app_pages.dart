@@ -1,7 +1,9 @@
 import 'package:get/get.dart';
 import 'package:laporan/home_admin/view/home_admin.dart';
 import 'package:laporan/home_user/view/home_user.dart';
+import 'package:laporan/laporan_bug/view/apk_category.dart';
 import 'package:laporan/laporan_bug/view/posting_bug.dart';
+import 'package:laporan/laporan_bug/view/priority_level.dart';
 import 'package:laporan/login/view/login.dart';
 import 'package:laporan/register/view/register.dart';
 import 'package:laporan/utils/routes/bindings.dart';
@@ -22,7 +24,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.HOME_USER,
-      page: () => HomeUser(),
+      page: () => const HomeUser(),
       binding: HomeUserBinding(),
       transition: Transition.fadeIn,
     ),
@@ -40,6 +42,17 @@ class AppPages {
       name: _Paths.POSTING_BUG,
       page: () => const PostingBug(),
       binding: PostingBugBinding(),
+    ),
+    GetPage(
+      name: _Paths.PRIORITY_POSTINGAN,
+      page: () => const PriorityLevel(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: _Paths.APK_CATEGORIES,
+      page: () => const AppsCategory(),
+      binding: ApkCategoriesBinding(),
+      transition: Transition.rightToLeft,
     ),
   ];
 }

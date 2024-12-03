@@ -9,6 +9,8 @@ abstract class Routes {
   static const LOGIN = _Paths.LOGIN;
   static const CREATE_USER = _Paths.REGISTER;
   static const POSTING = _Paths.POSTING_BUG;
+  static const PRIORITY = _Paths.PRIORITY_POSTINGAN;
+  static const APK_CATEGORY = _Paths.APK_CATEGORIES;
 }
 
 abstract class _Paths {
@@ -17,4 +19,6 @@ abstract class _Paths {
   static const LOGIN = '/login';
   static const REGISTER = '/create_user';
   static const POSTING_BUG = '/posting_bug';
+  static const PRIORITY_POSTINGAN = '/priority-post';
+  static const APK_CATEGORIES = '/apk-categories';
 }
