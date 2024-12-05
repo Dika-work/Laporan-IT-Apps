@@ -11,16 +11,14 @@ import 'package:laporan/utils/constant/custom_size.dart';
 import 'package:laporan/utils/routes/app_pages.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
 
-class PostingBug extends GetView<PostingBugController> {
-  const PostingBug({super.key});
+class EditPostingan extends GetView<PostingBugController> {
+  const EditPostingan({super.key});
 
   @override
   Widget build(BuildContext context) {
     final storage = GetStorage();
     final username = storage.read('username');
     final divisi = storage.read('divisi');
-    var priorityLevel = 1.obs;
-    final Rxn<ApkCategoriesModel> selectedCategory = Rxn<ApkCategoriesModel>();
 
     String priorityNameFromValue(int value) {
       Map<int, String> priorityName = {
@@ -62,7 +60,7 @@ class PostingBug extends GetView<PostingBugController> {
         leading: IconButton(
             onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back)),
         title: Text(
-          'Buat postingan',
+          'Edit Postingan',
           style: Theme.of(context)
               .textTheme
               .titleMedium
@@ -71,7 +69,7 @@ class PostingBug extends GetView<PostingBugController> {
         actions: [
           GestureDetector(
             onTap: () {
-              if (selectedCategory.value == null) {
+              if (controller.selectedCategory.value == null) {
                 Get.snackbar(
                   'Error',
                   'Silakan pilih kategori aplikasi terlebih dahulu.',
@@ -98,8 +96,8 @@ class PostingBug extends GetView<PostingBugController> {
                   DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
 
               controller.postingLampiranBug(
-                selectedCategory.value!.title,
-                priorityLevel.value.toString(),
+                controller.selectedCategory.value!.title,
+                controller.priorityLevel.value.toString(),
                 formattedDate,
               );
             },
@@ -113,7 +111,7 @@ class PostingBug extends GetView<PostingBugController> {
                 color: AppColors.buttonPrimary,
               ),
               child: Text(
-                'BERIKUTNYA',
+                'SIMPAN',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -141,27 +139,29 @@ class PostingBug extends GetView<PostingBugController> {
                       context,
                       username,
                       divisi,
-                      priorityColorFromValue(priorityLevel.value),
-                      priorityIconFromValue(priorityLevel.value),
-                      priorityNameFromValue(priorityLevel.value), () async {
+                      priorityColorFromValue(controller.priorityLevel.value),
+                      priorityIconFromValue(controller.priorityLevel.value),
+                      priorityNameFromValue(controller.priorityLevel.value),
+                      () async {
                     final result = await Get.toNamed(
                       Routes.PRIORITY,
-                      arguments: priorityLevel.value,
+                      arguments: controller.priorityLevel.value,
                     );
                     if (result != null) {
-                      priorityLevel.value = result as int;
+                      controller.priorityLevel.value = result as int;
                     }
                   }, () async {
                     final result = await Get.toNamed(Routes.APK_CATEGORY,
-                        arguments: selectedCategory.value?.idApk);
+                        arguments: controller.selectedCategory.value?.idApk);
                     if (result != null && result is ApkCategoriesModel) {
-                      selectedCategory.value = result;
+                      controller.selectedCategory.value = result;
                     }
                   },
-                      selectedCategory.value != null
+                      controller.selectedCategory.value != null
                           ? AppColors.accent.withOpacity(.6)
                           : AppColors.accent.withOpacity(.4),
-                      selectedCategory.value?.title ?? 'Pilih Kategori'),
+                      controller.selectedCategory.value?.title ??
+                          'Pilih Kategori'),
                   controller.selectedImage.value == null
                       ? _buildTextFormField(
                           context, 'Apa yang mau di laporkan?')
@@ -213,7 +213,6 @@ class PostingBug extends GetView<PostingBugController> {
                     ?.copyWith(color: AppColors.textPrimary),
               ),
               const SizedBox(height: CustomSize.xs),
-              Text(controller.fotoProfile.value),
               Row(
                 children: [
                   GestureDetector(

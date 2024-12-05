@@ -15,4 +15,11 @@ class ApkCategoriesModel {
         title: json['title'] ?? '',
         subtitle: json['subtitle'] ?? '');
   }
+  factory ApkCategoriesModel.fromString(String apkName) {
+    return ApkCategoriesModel(
+      idApk: 'unknown', // Default ID
+      title: apkName, // Gunakan nama aplikasi
+      subtitle: 'No subtitle available', // Default subtitle
+    );
+  }
 }

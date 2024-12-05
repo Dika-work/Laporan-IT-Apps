@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:laporan/problem/all_problem.dart';
+import 'package:laporan/laporan_bug/controller/posting_bug_controller.dart';
+import 'package:laporan/models/apk_categories_model.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
 import 'package:laporan/utils/routes/app_pages.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
@@ -15,6 +16,11 @@ class HomeUser extends GetView<HomeUserController> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      print('Username Hash: ${controller.usernameHash.value}');
+      await controller.getAllLaporan(controller.usernameHash.value);
+    });
+    final postinganController = Get.put(PostingBugController());
     return Scaffold(
       backgroundColor: AppColors.primaryExtraSoft,
       body: ListView(
@@ -91,7 +97,13 @@ class HomeUser extends GetView<HomeUserController> {
             ),
           ),
           GestureDetector(
-            onTap: () => Get.toNamed(Routes.POSTING),
+            onTap: () async {
+              final result = await Get.toNamed(Routes.POSTING);
+
+              if (result == true) {
+                controller.getAllLaporan(controller.usernameHash.value);
+              }
+            },
             child: Container(
               margin: const EdgeInsets.only(bottom: CustomSize.sm),
               padding: const EdgeInsets.all(CustomSize.sm),
@@ -103,7 +115,8 @@ class HomeUser extends GetView<HomeUserController> {
                       width: 42,
                       height: 42,
                       child: Image.network(
-                        'https://static.vecteezy.com/system/resources/thumbnails/019/900/322/small/happy-young-cute-illustration-face-profile-png.png',
+                        controller.fotoUser
+                            .value, //https://static.vecteezy.com/system/resources/thumbnails/019/900/322/small/happy-young-cute-illustration-face-profile-png.png
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -139,9 +152,12 @@ class HomeUser extends GetView<HomeUserController> {
             ),
           ),
           // Konten tambahan
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: CustomSize.sm),
-            child: PresenceCard(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: CustomSize.sm),
+            child: PresenceCard(
+              divisi: controller.divisi.value,
+              onTapLogout: () => controller.logout(),
+            ),
           ),
           Obx(() {
             if (controller.isLoading.value) {
@@ -160,12 +176,28 @@ class HomeUser extends GetView<HomeUserController> {
               itemBuilder: (context, index) {
                 final problem = controller.problemList[index];
                 return PresenceTile(
-                  nama: problem.usernameHash,
+                  nama: problem.username,
+                  fotoProfile: problem.fotoProfile,
                   divisi: problem.divisi,
+                  apk: problem.apk,
                   deskripsi: problem.lampiran,
                   tglDiproses: problem.tglDiproses,
                   priority: problem.priority,
                   statusKerja: problem.statusKerja,
+                  laporanFoto: problem.fotoUser,
+                  eventEdit: () async {
+                    final result = await postinganController.getDataBeforeEdit(
+                        usernameHash: controller.usernameHash.value,
+                        lampiran: problem.lampiran,
+                        fotoUserPath: problem.fotoUser,
+                        apk: problem.apk,
+                        priority: int.parse(problem.priority));
+
+                    if (result == true) {
+                      controller.getAllLaporan(controller.usernameHash.value);
+                    }
+                  },
+                  deleteEvent: () => controller.deleteLaporan(problem.id),
                 );
               },
             );

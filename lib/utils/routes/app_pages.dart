@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:laporan/home_admin/view/home_admin.dart';
 import 'package:laporan/home_user/view/home_user.dart';
 import 'package:laporan/laporan_bug/view/apk_category.dart';
+import 'package:laporan/laporan_bug/view/edit_postingan.dart';
 import 'package:laporan/laporan_bug/view/posting_bug.dart';
 import 'package:laporan/laporan_bug/view/priority_level.dart';
 import 'package:laporan/login/view/login.dart';
@@ -41,6 +42,11 @@ class AppPages {
     GetPage(
       name: _Paths.POSTING_BUG,
       page: () => const PostingBug(),
+      binding: PostingBugBinding(),
+    ),
+    GetPage(
+      name: _Paths.EDIT_POSTINGAN,
+      page: () => const EditPostingan(),
       binding: PostingBugBinding(),
     ),
     GetPage(

@@ -1,4 +1,4 @@
-class ProblemData {
+class ProblemDataForAdmin {
   String id;
   String fotoProfile;
   String username;
@@ -10,7 +10,7 @@ class ProblemData {
   String statusKerja;
   String priority;
 
-  ProblemData({
+  ProblemDataForAdmin({
     required this.id,
     required this.fotoProfile,
     required this.username,
@@ -23,9 +23,9 @@ class ProblemData {
     required this.priority,
   });
 
-  factory ProblemData.fromJson(Map<String, dynamic> json) {
+  factory ProblemDataForAdmin.fromJson(Map<String, dynamic> json) {
     const baseUrl = 'http://10.3.80.4:8080';
-    return ProblemData(
+    return ProblemDataForAdmin(
         id: json['id'] ?? '',
         fotoProfile: json['user_foto_user'] != null
             ? '$baseUrl/${json['user_foto_user']}'

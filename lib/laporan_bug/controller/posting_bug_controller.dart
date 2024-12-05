@@ -5,7 +5,12 @@ import 'package:dio/dio.dart' as diomultipart;
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:laporan/home_user/controller/home_user_controller.dart';
+import 'package:laporan/models/apk_categories_model.dart';
+import 'package:laporan/models/problem_data.dart';
 import 'package:laporan/utils/loadings/snackbar.dart';
+import 'package:laporan/utils/routes/app_pages.dart';
+import 'package:path_provider/path_provider.dart';
 
 class PostingBugController extends GetxController {
   RxBool isLoading = false.obs;
@@ -13,7 +18,13 @@ class PostingBugController extends GetxController {
   final localStorage = GetStorage();
   final formKey = GlobalKey<FormState>();
   Rxn<File> selectedImage = Rxn<File>();
+  final Rxn<ApkCategoriesModel> selectedCategory = Rxn<ApkCategoriesModel>();
+  RxList<ProblemData> problemList = <ProblemData>[].obs;
+
+  var priorityLevel = 1.obs;
+
   RxString username = ''.obs;
+  RxString fotoProfile = ''.obs;
   TextEditingController lampiranC = TextEditingController();
 
   final diomultipart.Dio _dio = diomultipart.Dio(
@@ -48,9 +59,14 @@ class PostingBugController extends GetxController {
     }
   }
 
-  postingLampiranBug() async {
+  postingLampiranBug(
+    String? apk,
+    String priority,
+    String tglDiproses,
+  ) async {
     isLoading.value = true;
-    username.value = localStorage.read('username') ?? '';
+    username.value = localStorage.read('username');
+    fotoProfile.value = localStorage.read('foto_user');
 
     if (!formKey.currentState!.validate()) {
       isLoading.value = false;
@@ -61,42 +77,190 @@ class PostingBugController extends GetxController {
       diomultipart.FormData formData = diomultipart.FormData.fromMap({
         'username': username.value,
         'lampiran': lampiranC.text,
-        'foto_user': await diomultipart.MultipartFile.fromFile(
-          selectedImage.value!.path,
-        ),
+        'apk': apk,
+        'priority': priority,
+        'tgl_diproses': tglDiproses,
+        'status_kerja': '0',
+        'foto_user': selectedImage.value != null
+            ? await diomultipart.MultipartFile.fromFile(
+                selectedImage.value!.path,
+                filename: selectedImage.value!.path.split('/').last,
+              )
+            : null,
       });
+
+      print('Request Payload: ${formData.fields}');
+      print('Request File: ${formData.files}');
 
       final response = await _dio.post('/createLaporan', data: formData);
 
       if (response.statusCode == 201) {
+        print('Response success: 201 status code');
+        Get.back(result: true);
+        lampiranC.clear();
+        selectedImage.value = null;
+        print('DATANYA SUDAH BERHASIL MASUK POSTINGAN');
         SnackbarLoader.successSnackBar(
           title: 'Success',
           message: response.data['message'] ?? 'Lampiran berhasil ditambahkan',
         );
-
-        lampiranC.clear();
-        selectedImage.value = null;
-
-        Get.back();
       } else {
+        print('Unexpected response: ${response.statusCode}');
         SnackbarLoader.errorSnackBar(
             title: 'Oops👻',
             message: response.data['message'] ?? 'Lampiran gagal ditambahkan');
       }
     } on diomultipart.DioException catch (e) {
-      if (e.response?.statusCode == 429) {
-        SnackbarLoader.warningSnackBar(
-            title: 'Limit Exceeded',
-            message: 'Terlalu banyak permintaan. Coba lagi nanti');
-      } else {
-        SnackbarLoader.warningSnackBar(
-            title: 'Limit Exceeded',
-            message: e.response?.data['message'] ?? 'Terjadi kesalahan');
+      print('DioException caught: $e');
+      if (e.response != null) {
+        print('Response data: ${e.response!.data}');
       }
+      SnackbarLoader.errorSnackBar(
+        title: 'Error',
+        message: e.response?.data['message'] ?? 'Terjadi kesalahan',
+      );
     } finally {
       isLoading.value = false;
     }
   }
+
+  getDataBeforeEdit({
+    required String usernameHash,
+    required String lampiran,
+    required String fotoUserPath,
+    required String apk,
+    required int priority,
+  }) {
+    lampiranC.text = lampiran;
+
+    // Konversi apk ke model
+    selectedCategory.value = ApkCategoriesModel.fromString(apk);
+
+    // Atur prioritas
+    priorityLevel.value = priority;
+
+    // Konversi fotoUserPath menjadi File
+    if (fotoUserPath.isNotEmpty) {
+      final filePath = fotoUserPath; // URL lengkap
+      selectedImage.value = File(filePath); // Gunakan File untuk local handling
+    } else {
+      selectedImage.value = null;
+    }
+
+    Get.toNamed(
+      Routes.EDIT_POSTING,
+      arguments: {
+        'usernameHash': usernameHash,
+        'lampiran': lampiran,
+        'fotoUserPath': fotoUserPath,
+        'apk': apk,
+        'priority': priority,
+      },
+    );
+  }
+
+  Future<File?> downloadImage(String url) async {
+    try {
+      // Gunakan Dio untuk mengunduh file
+      final response = await _dio.get(
+        url,
+        options:
+            diomultipart.Options(responseType: diomultipart.ResponseType.bytes),
+      );
+
+      // Simpan file di direktori sementara
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/${url.split('/').last}');
+      await file.writeAsBytes(response.data);
+
+      return file;
+    } catch (e) {
+      print('Error downloading image: $e');
+      return null;
+    }
+  }
+
+  updateLaporan({
+    required String usernameHash,
+    required String lampiran,
+    required ApkCategoriesModel apk,
+    required int priority,
+  }) async {
+    isLoading.value = true;
+
+    try {
+      // Siapkan payload
+      final formData = diomultipart.FormData.fromMap({
+        'lampiran': lampiran,
+        'apk': apk.title, // Gunakan field yang sesuai dari model
+        'priority': priority.toString(),
+        'foto_user': selectedImage.value != null
+            ? await diomultipart.MultipartFile.fromFile(
+                selectedImage.value!.path,
+                filename: selectedImage.value!.path.split('/').last,
+              )
+            : null,
+      });
+
+      final response = await _dio.put(
+        '/updateLaporan/$usernameHash',
+        data: formData,
+      );
+
+      if (response.statusCode == 200) {
+        Get.back(result: true); // Kembali ke halaman sebelumnya
+        SnackbarLoader.successSnackBar(
+          title: 'Sukses',
+          message: 'Laporan berhasil diperbarui.',
+        );
+      } else {
+        SnackbarLoader.errorSnackBar(
+          title: 'Gagal',
+          message: response.data['message'] ?? 'Terjadi kesalahan',
+        );
+      }
+    } on diomultipart.DioException catch (e) {
+      SnackbarLoader.errorSnackBar(
+        title: 'Error',
+        message: e.response?.data['message'] ?? 'Terjadi kesalahan',
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // getAllLaporan(String usernameHash) async {
+  //   isLoading.value = true;
+
+  //   try {
+  //     final response = await _dio.get(
+  //       '/getAllLaporan',
+  //       queryParameters: {'username_hash': usernameHash},
+  //     );
+  //     print('Response Data: ${response.data}');
+
+  //     if (response.statusCode == 200) {
+  //       List<dynamic> data = response.data;
+  //       print('Response data dari API: ${response.data}');
+  //       // Simpan data ke RxList<ProblemData>
+  //       problemList.value = data.map((e) => ProblemData.fromJson(e)).toList();
+  //       print('Problem List: ${problemList.length} items loaded');
+  //     }
+  //   } on diomultipart.DioException catch (e) {
+  //     if (e.response?.statusCode == 429) {
+  //       SnackbarLoader.warningSnackBar(
+  //           title: 'Limit Exceeded',
+  //           message: 'Terlalu banyak permintaan. Coba lagi nanti');
+  //     } else {
+  //       print('ini error ketika get postingan by username hash : $e');
+  //       SnackbarLoader.warningSnackBar(
+  //           title: 'Error',
+  //           message: e.response?.data['message'] ?? 'Terjadi kesalahan');
+  //     }
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
 
   @override
   void onClose() {

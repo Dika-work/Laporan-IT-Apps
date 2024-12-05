@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:laporan/problem/all_problem.dart';
+import 'package:laporan/utils/constant/custom_size.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
 
 class PresenceCard extends StatelessWidget {
-  const PresenceCard({super.key});
+  final String divisi;
+  final void Function()? onTapLogout;
+  const PresenceCard({super.key, required this.divisi, this.onTapLogout});
 
   @override
   Widget build(BuildContext context) {
@@ -22,17 +26,32 @@ class PresenceCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Job title
-          Text('Software Engineer',
+          Text('Divisi - $divisi',
               style: Theme.of(context)
                   .textTheme
                   .titleSmall
                   ?.copyWith(fontWeight: FontWeight.bold, color: Colors.white)),
           // Division
-          Container(
-            margin: const EdgeInsets.only(top: 4, bottom: 12),
-            child: Text('Divisi IT',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold, color: Colors.white)),
+          Padding(
+            padding: const EdgeInsets.only(top: 4, bottom: 12),
+            child: GestureDetector(
+              onTap: onTapLogout,
+              child: Row(
+                children: [
+                  Text('Logout',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w400,
+                            color: Colors.white,
+                          )),
+                  const SizedBox(width: CustomSize.sm),
+                  const Icon(
+                    Iconsax.setting,
+                    size: 20,
+                    color: Colors.white,
+                  )
+                ],
+              ),
+            ),
           ),
           // Problem Categories
           Container(
@@ -52,7 +71,7 @@ class PresenceCard extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              const AllProblem(initialCategory: 1),
+                              const AllProblem(initialCategory: '0'),
                         ),
                       );
                     },
@@ -91,7 +110,7 @@ class PresenceCard extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              const AllProblem(initialCategory: 2),
+                              const AllProblem(initialCategory: '1'),
                         ),
                       );
                     },
@@ -130,7 +149,7 @@ class PresenceCard extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              const AllProblem(initialCategory: 3),
+                              const AllProblem(initialCategory: '2'),
                         ),
                       );
                     },

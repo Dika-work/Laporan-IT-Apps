@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:laporan/utils/loadings/snackbar.dart';
@@ -9,6 +12,7 @@ class HomeUserController extends GetxController {
   RxBool isLoading = false.obs;
 
   RxString username = ''.obs;
+  RxString usernameHash = ''.obs;
   RxString typeUser = ''.obs;
   RxString fotoUser = ''.obs;
   RxString divisi = ''.obs;
@@ -28,13 +32,13 @@ class HomeUserController extends GetxController {
   void onInit() {
     super.onInit();
     fetchUserData();
-    getAllLaporan();
   }
 
   fetchUserData() {
     isLoading.value = true;
     try {
       username.value = localStorage.read('username') ?? '';
+      usernameHash.value = localStorage.read('username_hash') ?? '';
       typeUser.value = localStorage.read('type_user') ?? '';
       fotoUser.value = localStorage.read('foto_user') ?? '';
       divisi.value = localStorage.read('divisi') ?? '';
@@ -47,17 +51,19 @@ class HomeUserController extends GetxController {
     }
   }
 
-  getAllLaporan() async {
+  getAllLaporan(String usernameHash) async {
     isLoading.value = true;
 
     try {
-      final response = await _dio.get('/getAllLaporan');
+      final response = await _dio.get(
+        '/getAllLaporan',
+        queryParameters: {'username_hash': usernameHash},
+      );
       print('Response Data: ${response.data}');
 
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;
-        print('..INI RESPONSE DARI GET ALL PROBLEM.. ${data.toList()}');
-
+        print('Response data dari API: ${response.data}');
         // Simpan data ke RxList<ProblemData>
         problemList.value = data.map((e) => ProblemData.fromJson(e)).toList();
         print('Problem List: ${problemList.length} items loaded');
@@ -68,6 +74,7 @@ class HomeUserController extends GetxController {
             title: 'Limit Exceeded',
             message: 'Terlalu banyak permintaan. Coba lagi nanti');
       } else {
+        print('ini error ketika get postingan by username hash : $e');
         SnackbarLoader.warningSnackBar(
             title: 'Error',
             message: e.response?.data['message'] ?? 'Terjadi kesalahan');
@@ -77,8 +84,63 @@ class HomeUserController extends GetxController {
     }
   }
 
+  deleteLaporan(String id) async {
+    isLoading.value = true;
+    try {
+      // Hash ID sebelum mengirim ke backend
+      String hashId = generateHash(id);
+      print('INI HASH ID PADA DELETE LAPORAN $hashId');
+      // Kirim permintaan DELETE ke backend
+      final response = await _dio.delete(
+        '/deleteLaporan',
+        data: {'hash_id': hashId}, // Kirim hash ID
+      );
+
+      if (response.statusCode == 200) {
+        // Hapus item dari problemList berdasarkan ID asli
+        problemList.removeWhere((element) => element.id.toString() == id);
+
+        SnackbarLoader.successSnackBar(
+          title: 'Berhasil',
+          message: 'Laporan berhasil dihapus',
+        );
+      } else {
+        SnackbarLoader.errorSnackBar(
+          title: 'Gagal',
+          message: response.data['message'] ?? 'Gagal menghapus laporan',
+        );
+      }
+    } on diomultipart.DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        SnackbarLoader.warningSnackBar(
+          title: 'Tidak Ditemukan',
+          message: 'Laporan tidak ditemukan',
+        );
+      } else {
+        SnackbarLoader.errorSnackBar(
+          title: 'Kesalahan',
+          message: e.response?.data['message'] ?? 'Terjadi kesalahan',
+        );
+      }
+    } catch (e) {
+      SnackbarLoader.errorSnackBar(
+        title: 'Kesalahan',
+        message: 'Terjadi kesalahan: ${e.toString()}',
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  String generateHash(String id) {
+    var bytes = utf8.encode(id); // Konversi ID ke bytes
+    var digest = sha256.convert(bytes); // Hash dengan SHA-256
+    return digest.toString(); // Ubah ke string
+  }
+
   logout() {
     localStorage.remove('username');
+    localStorage.remove('username_hash');
     localStorage.remove('type_user');
     localStorage.remove('foto_user');
     localStorage.remove('divisi');
