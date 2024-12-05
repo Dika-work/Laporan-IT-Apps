@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ionicons/ionicons.dart';
@@ -114,10 +115,14 @@ class HomeUser extends GetView<HomeUserController> {
                     child: SizedBox(
                       width: 42,
                       height: 42,
-                      child: Image.network(
-                        controller.fotoUser
-                            .value, //https://static.vecteezy.com/system/resources/thumbnails/019/900/322/small/happy-young-cute-illustration-face-profile-png.png
-                        fit: BoxFit.cover,
+                      child: CachedNetworkImage(
+                        imageUrl: controller.fotoUser.value,
+                        progressIndicatorBuilder:
+                            (context, url, downloadProgress) =>
+                                CircularProgressIndicator(
+                                    value: downloadProgress.progress),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
                       ),
                     ),
                   ),
@@ -187,6 +192,7 @@ class HomeUser extends GetView<HomeUserController> {
                   laporanFoto: problem.fotoUser,
                   eventEdit: () async {
                     final result = await postinganController.getDataBeforeEdit(
+                        hashId: problem.id,
                         usernameHash: controller.usernameHash.value,
                         lampiran: problem.lampiran,
                         fotoUserPath: problem.fotoUser,

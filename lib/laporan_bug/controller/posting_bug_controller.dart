@@ -1,11 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as diomultipart;
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:laporan/home_user/controller/home_user_controller.dart';
 import 'package:laporan/models/apk_categories_model.dart';
 import 'package:laporan/models/problem_data.dart';
 import 'package:laporan/utils/loadings/snackbar.dart';
@@ -24,7 +25,6 @@ class PostingBugController extends GetxController {
   var priorityLevel = 1.obs;
 
   RxString username = ''.obs;
-  RxString fotoProfile = ''.obs;
   TextEditingController lampiranC = TextEditingController();
 
   final diomultipart.Dio _dio = diomultipart.Dio(
@@ -66,7 +66,6 @@ class PostingBugController extends GetxController {
   ) async {
     isLoading.value = true;
     username.value = localStorage.read('username');
-    fotoProfile.value = localStorage.read('foto_user');
 
     if (!formKey.currentState!.validate()) {
       isLoading.value = false;
@@ -125,43 +124,56 @@ class PostingBugController extends GetxController {
   }
 
   getDataBeforeEdit({
+    required String hashId,
     required String usernameHash,
     required String lampiran,
     required String fotoUserPath,
     required String apk,
     required int priority,
-  }) {
-    lampiranC.text = lampiran;
+  }) async {
+    // Reset state sebelum memuat data baru
+    resetEditState();
 
-    // Konversi apk ke model
-    selectedCategory.value = ApkCategoriesModel.fromString(apk);
+    String id = generateHash(hashId);
 
-    // Atur prioritas
-    priorityLevel.value = priority;
+    // Siapkan arguments
+    final arguments = {
+      'hash_id': id,
+      'usernameHash': usernameHash,
+      'lampiran': lampiran,
+      'fotoUserPath': fotoUserPath,
+      'apk': apk,
+      'priority': priority,
+    };
 
-    // Konversi fotoUserPath menjadi File
-    if (fotoUserPath.isNotEmpty) {
-      final filePath = fotoUserPath; // URL lengkap
-      selectedImage.value = File(filePath); // Gunakan File untuk local handling
-    } else {
-      selectedImage.value = null;
+    // Unduh gambar jika URL valid
+    if (fotoUserPath.isNotEmpty && fotoUserPath.startsWith('http')) {
+      isLoading.value = true; // Tampilkan indikator loading
+      final downloadedImage = await downloadImage(fotoUserPath);
+      if (downloadedImage != null) {
+        selectedImage.value = downloadedImage;
+      } else {
+        print("Gagal mengunduh gambar: $fotoUserPath");
+      }
+      isLoading.value = false; // Sembunyikan indikator loading
+    } else if (fotoUserPath.isNotEmpty) {
+      // Jika file adalah lokal
+      selectedImage.value = File(fotoUserPath);
     }
 
+    // Inisialisasi data untuk pengeditan
+    initializeEditData(arguments);
+
+    // Navigasi ke halaman edit setelah semua proses selesai
     Get.toNamed(
       Routes.EDIT_POSTING,
-      arguments: {
-        'usernameHash': usernameHash,
-        'lampiran': lampiran,
-        'fotoUserPath': fotoUserPath,
-        'apk': apk,
-        'priority': priority,
-      },
+      arguments: arguments,
     );
   }
 
   Future<File?> downloadImage(String url) async {
     try {
-      // Gunakan Dio untuk mengunduh file
+      // Unduh file menggunakan Dio
       final response = await _dio.get(
         url,
         options:
@@ -173,7 +185,7 @@ class PostingBugController extends GetxController {
       final file = File('${tempDir.path}/${url.split('/').last}');
       await file.writeAsBytes(response.data);
 
-      return file;
+      return file; // Kembalikan file lokal
     } catch (e) {
       print('Error downloading image: $e');
       return null;
@@ -181,7 +193,7 @@ class PostingBugController extends GetxController {
   }
 
   updateLaporan({
-    required String usernameHash,
+    required String hashId,
     required String lampiran,
     required ApkCategoriesModel apk,
     required int priority,
@@ -189,10 +201,11 @@ class PostingBugController extends GetxController {
     isLoading.value = true;
 
     try {
-      // Siapkan payload
+      // Siapkan payload untuk API
       final formData = diomultipart.FormData.fromMap({
+        'hash_id': hashId,
         'lampiran': lampiran,
-        'apk': apk.title, // Gunakan field yang sesuai dari model
+        'apk': apk.title,
         'priority': priority.toString(),
         'foto_user': selectedImage.value != null
             ? await diomultipart.MultipartFile.fromFile(
@@ -202,13 +215,11 @@ class PostingBugController extends GetxController {
             : null,
       });
 
-      final response = await _dio.put(
-        '/updateLaporan/$usernameHash',
-        data: formData,
-      );
+      // Kirim request ke API
+      final response = await _dio.put('/updateLaporan', data: formData);
 
       if (response.statusCode == 200) {
-        Get.back(result: true); // Kembali ke halaman sebelumnya
+        Get.back(result: true);
         SnackbarLoader.successSnackBar(
           title: 'Sukses',
           message: 'Laporan berhasil diperbarui.',
@@ -229,38 +240,39 @@ class PostingBugController extends GetxController {
     }
   }
 
-  // getAllLaporan(String usernameHash) async {
-  //   isLoading.value = true;
+  String generateHash(String id) {
+    var bytes = utf8.encode(id); // Konversi ID ke bytes
+    var digest = sha256.convert(bytes); // Hash dengan SHA-256
+    return digest.toString(); // Ubah ke string
+  }
 
-  //   try {
-  //     final response = await _dio.get(
-  //       '/getAllLaporan',
-  //       queryParameters: {'username_hash': usernameHash},
-  //     );
-  //     print('Response Data: ${response.data}');
+  void initializeEditData(Map<String, dynamic> arguments) {
+    // Isi data berdasarkan arguments
+    lampiranC.text = arguments['lampiran'] ?? '';
+    priorityLevel.value = arguments['priority'] ?? 1;
 
-  //     if (response.statusCode == 200) {
-  //       List<dynamic> data = response.data;
-  //       print('Response data dari API: ${response.data}');
-  //       // Simpan data ke RxList<ProblemData>
-  //       problemList.value = data.map((e) => ProblemData.fromJson(e)).toList();
-  //       print('Problem List: ${problemList.length} items loaded');
-  //     }
-  //   } on diomultipart.DioException catch (e) {
-  //     if (e.response?.statusCode == 429) {
-  //       SnackbarLoader.warningSnackBar(
-  //           title: 'Limit Exceeded',
-  //           message: 'Terlalu banyak permintaan. Coba lagi nanti');
-  //     } else {
-  //       print('ini error ketika get postingan by username hash : $e');
-  //       SnackbarLoader.warningSnackBar(
-  //           title: 'Error',
-  //           message: e.response?.data['message'] ?? 'Terjadi kesalahan');
-  //     }
-  //   } finally {
-  //     isLoading.value = false;
-  //   }
-  // }
+    if (arguments['fotoUserPath'] != null && arguments['fotoUserPath'] != '') {
+      final fotoUserPath = arguments['fotoUserPath'];
+      if (fotoUserPath.startsWith('http')) {
+        downloadImage(fotoUserPath).then((file) {
+          if (file != null) selectedImage.value = file;
+        });
+      } else {
+        selectedImage.value = File(fotoUserPath);
+      }
+    }
+
+    selectedCategory.value = ApkCategoriesModel.fromString(
+      arguments['apk'] ?? '',
+    );
+  }
+
+  void resetEditState() {
+    lampiranC.clear(); // Reset input lampiran
+    selectedImage.value = null; // Reset gambar yang dipilih
+    selectedCategory.value = null; // Reset kategori
+    priorityLevel.value = 1; // Setel prioritas ke default
+  }
 
   @override
   void onClose() {

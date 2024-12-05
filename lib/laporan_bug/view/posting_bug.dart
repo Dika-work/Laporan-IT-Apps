@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -18,6 +19,8 @@ class PostingBug extends GetView<PostingBugController> {
   Widget build(BuildContext context) {
     final storage = GetStorage();
     final username = storage.read('username');
+    final fotoProfile = storage.read('foto_user');
+
     final divisi = storage.read('divisi');
     var priorityLevel = 1.obs;
     final Rxn<ApkCategoriesModel> selectedCategory = Rxn<ApkCategoriesModel>();
@@ -140,6 +143,7 @@ class PostingBug extends GetView<PostingBugController> {
                   _buildUserAndCategorySection(
                       context,
                       username,
+                      fotoProfile,
                       divisi,
                       priorityColorFromValue(priorityLevel.value),
                       priorityIconFromValue(priorityLevel.value),
@@ -179,6 +183,7 @@ class PostingBug extends GetView<PostingBugController> {
   Widget _buildUserAndCategorySection(
     BuildContext context,
     String username,
+    String fotoProfile,
     String divisi,
     Color? priorityColor,
     Icon iconPriority,
@@ -191,12 +196,16 @@ class PostingBug extends GetView<PostingBugController> {
     return Padding(
         padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 4.0),
         child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          CircleAvatar(
-            radius: 25,
-            child: Image.network(
-              controller.fotoProfile
-                  .value, //https://static.vecteezy.com/system/resources/thumbnails/019/900/322/small/happy-young-cute-illustration-face-profile-png.png
-              fit: BoxFit.cover,
+          ClipOval(
+            child: SizedBox(
+              width: 42,
+              height: 42,
+              child: CachedNetworkImage(
+                imageUrl: fotoProfile,
+                progressIndicatorBuilder: (context, url, downloadProgress) =>
+                    CircularProgressIndicator(value: downloadProgress.progress),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
             ),
           ),
           const SizedBox(width: 10),
@@ -213,7 +222,6 @@ class PostingBug extends GetView<PostingBugController> {
                     ?.copyWith(color: AppColors.textPrimary),
               ),
               const SizedBox(height: CustomSize.xs),
-              Text(controller.fotoProfile.value),
               Row(
                 children: [
                   GestureDetector(

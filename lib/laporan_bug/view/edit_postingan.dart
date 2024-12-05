@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -10,6 +11,7 @@ import 'package:laporan/models/apk_categories_model.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
 import 'package:laporan/utils/routes/app_pages.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
+import 'package:laporan/utils/widgets/dialogs.dart';
 
 class EditPostingan extends GetView<PostingBugController> {
   const EditPostingan({super.key});
@@ -18,6 +20,7 @@ class EditPostingan extends GetView<PostingBugController> {
   Widget build(BuildContext context) {
     final storage = GetStorage();
     final username = storage.read('username');
+    final fotoProfile = storage.read('foto_user');
     final divisi = storage.read('divisi');
 
     String priorityNameFromValue(int value) {
@@ -57,116 +60,195 @@ class EditPostingan extends GetView<PostingBugController> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        leading: IconButton(
-            onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back)),
-        title: Text(
-          'Edit Postingan',
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(fontWeight: FontWeight.w400, color: Colors.black),
-        ),
-        actions: [
-          GestureDetector(
-            onTap: () {
-              if (controller.selectedCategory.value == null) {
-                Get.snackbar(
-                  'Error',
-                  'Silakan pilih kategori aplikasi terlebih dahulu.',
-                  snackPosition: SnackPosition.BOTTOM,
-                  backgroundColor: Colors.red,
-                  colorText: Colors.white,
-                );
-                return;
-              }
-
-              if (controller.selectedImage.value == null) {
-                Get.snackbar(
-                  'Error',
-                  'Silakan pilih gambar terlebih dahulu.',
-                  snackPosition: SnackPosition.BOTTOM,
-                  backgroundColor: Colors.red,
-                  colorText: Colors.white,
-                );
-                return;
-              }
-
-              final now = DateTime.now();
-              final String formattedDate =
-                  DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
-
-              controller.postingLampiranBug(
-                controller.selectedCategory.value!.title,
-                controller.priorityLevel.value.toString(),
-                formattedDate,
+          leading: IconButton(
+            onPressed: () async {
+              final isConfirmed = await CustomDialogs.defaultDialog(
+                context: Get.overlayContext!,
+                contentWidget: const Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                        'Perubahan belum disimpan. Apakah Anda ingin melanjutkan?'),
+                  ],
+                ),
+                onConfirm: () {
+                  Navigator.of(Get.overlayContext!).pop(true);
+                  Navigator.of(Get.overlayContext!).pop(true);
+                },
+                onCancel: () {
+                  Navigator.of(Get.overlayContext!).pop(false);
+                },
+                confirmText: 'Kembali',
               );
+
+              if (isConfirmed == true) {
+                controller.resetEditState();
+                Get.back();
+              }
             },
-            child: Container(
-              padding: const EdgeInsets.all(CustomSize.xs),
-              margin: const EdgeInsets.fromLTRB(
-                  0, CustomSize.sm, CustomSize.sm, CustomSize.sm),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(CustomSize.borderRadiusSm),
-                color: AppColors.buttonPrimary,
-              ),
-              child: Text(
-                'SIMPAN',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
+            icon: const Icon(Icons.arrow_back),
+          ),
+          title: Text(
+            'Edit Postingan',
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.w400, color: Colors.black),
+          ),
+          actions: [
+            GestureDetector(
+              onTap: () async {
+                if (controller.selectedCategory.value == null) {
+                  Get.snackbar(
+                    'Error',
+                    'Silakan pilih kategori aplikasi terlebih dahulu.',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.red,
+                    colorText: Colors.white,
+                  );
+                  return;
+                }
+
+                if (controller.selectedImage.value == null) {
+                  Get.snackbar(
+                    'Error',
+                    'Silakan pilih gambar terlebih dahulu.',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.red,
+                    colorText: Colors.white,
+                  );
+                  return;
+                }
+
+                // Ambil hash_id dari arguments
+                final hashId = Get.arguments['hash_id'];
+                if (hashId == null) {
+                  Get.snackbar(
+                    'Error',
+                    'Hash ID tidak ditemukan.',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.red,
+                    colorText: Colors.white,
+                  );
+                  return;
+                }
+
+                // Format tanggal saat ini
+                final now = DateTime.now();
+                final String formattedDate =
+                    DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+
+                // Panggil controller untuk update laporan
+                await controller.updateLaporan(
+                  hashId: hashId,
+                  lampiran: controller.lampiranC.text,
+                  apk: controller.selectedCategory.value!,
+                  priority: controller.priorityLevel.value,
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.all(CustomSize.xs),
+                margin: const EdgeInsets.fromLTRB(
+                    0, CustomSize.sm, CustomSize.sm, CustomSize.sm),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  borderRadius:
+                      BorderRadius.circular(CustomSize.borderRadiusSm),
+                  color: AppColors.buttonPrimary,
+                ),
+                child: Text(
+                  'SIMPAN',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
+                ),
               ),
             ),
-          )
-        ],
-      ),
+          ]),
       body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
         return SingleChildScrollView(
           physics: controller.selectedImage.value == null
               ? const NeverScrollableScrollPhysics()
               : const BouncingScrollPhysics(),
-          child: Form(
-            key: controller.formKey,
-            child: Container(
-              width: Get.width,
-              margin: const EdgeInsets.only(top: 10.0),
-              color: Colors.white,
-              child: Column(
-                children: [
-                  const SizedBox(height: CustomSize.xs),
-                  _buildUserAndCategorySection(
-                      context,
-                      username,
-                      divisi,
-                      priorityColorFromValue(controller.priorityLevel.value),
-                      priorityIconFromValue(controller.priorityLevel.value),
-                      priorityNameFromValue(controller.priorityLevel.value),
-                      () async {
-                    final result = await Get.toNamed(
-                      Routes.PRIORITY,
-                      arguments: controller.priorityLevel.value,
-                    );
-                    if (result != null) {
-                      controller.priorityLevel.value = result as int;
-                    }
-                  }, () async {
-                    final result = await Get.toNamed(Routes.APK_CATEGORY,
-                        arguments: controller.selectedCategory.value?.idApk);
-                    if (result != null && result is ApkCategoriesModel) {
-                      controller.selectedCategory.value = result;
-                    }
-                  },
-                      controller.selectedCategory.value != null
-                          ? AppColors.accent.withOpacity(.6)
-                          : AppColors.accent.withOpacity(.4),
-                      controller.selectedCategory.value?.title ??
-                          'Pilih Kategori'),
-                  controller.selectedImage.value == null
-                      ? _buildTextFormField(
-                          context, 'Apa yang mau di laporkan?')
-                      : _buildImageAndTextField(context)
-                ],
+          child: PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) async {
+              if (didPop) return;
+
+              final isConfirmed = await CustomDialogs.defaultDialog(
+                context: Get.overlayContext!,
+                contentWidget: const Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                        'Perubahan belum disimpan. Apakah Anda ingin melanjutkan?'),
+                  ],
+                ),
+                onConfirm: () {
+                  Navigator.of(Get.overlayContext!).pop(true);
+                  Navigator.of(Get.overlayContext!).pop(true);
+                },
+                onCancel: () {
+                  Navigator.of(Get.overlayContext!).pop(false); // Batal keluar
+                },
+                confirmText: 'Kembali',
+              );
+
+              if (isConfirmed == true) {
+                controller.resetEditState();
+                Navigator.of(Get.overlayContext!).pop(true);
+              }
+            },
+            child: Form(
+              key: controller.formKey,
+              child: Container(
+                width: Get.width,
+                margin: const EdgeInsets.only(top: 10.0),
+                color: Colors.white,
+                child: Column(
+                  children: [
+                    const SizedBox(height: CustomSize.xs),
+                    _buildUserAndCategorySection(
+                        context,
+                        username,
+                        fotoProfile,
+                        divisi,
+                        priorityColorFromValue(controller.priorityLevel.value),
+                        priorityIconFromValue(controller.priorityLevel.value),
+                        priorityNameFromValue(controller.priorityLevel.value),
+                        () async {
+                      final result = await Get.toNamed(
+                        Routes.PRIORITY,
+                        arguments: controller.priorityLevel.value,
+                      );
+                      if (result != null) {
+                        controller.priorityLevel.value = result as int;
+                      }
+                    }, () async {
+                      final result = await Get.toNamed(Routes.APK_CATEGORY,
+                          arguments: controller.selectedCategory.value?.idApk);
+                      if (result != null && result is ApkCategoriesModel) {
+                        controller.selectedCategory.value = result;
+                      }
+                    },
+                        controller.selectedCategory.value != null
+                            ? AppColors.accent.withOpacity(.6)
+                            : AppColors.accent.withOpacity(.4),
+                        controller.selectedCategory.value?.title ??
+                            'Pilih Kategori'),
+                    controller.selectedImage.value == null
+                        ? _buildTextFormField(
+                            context, 'Apa yang mau di laporkan?')
+                        : _buildImageAndTextField(context)
+                  ],
+                ),
               ),
             ),
           ),
@@ -179,6 +261,7 @@ class EditPostingan extends GetView<PostingBugController> {
   Widget _buildUserAndCategorySection(
     BuildContext context,
     String username,
+    String fotoProfile,
     String divisi,
     Color? priorityColor,
     Icon iconPriority,
@@ -191,12 +274,16 @@ class EditPostingan extends GetView<PostingBugController> {
     return Padding(
         padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 4.0),
         child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          CircleAvatar(
-            radius: 25,
-            child: Image.network(
-              controller.fotoProfile
-                  .value, //https://static.vecteezy.com/system/resources/thumbnails/019/900/322/small/happy-young-cute-illustration-face-profile-png.png
-              fit: BoxFit.cover,
+          ClipOval(
+            child: SizedBox(
+              width: 42,
+              height: 42,
+              child: CachedNetworkImage(
+                imageUrl: fotoProfile,
+                progressIndicatorBuilder: (context, url, downloadProgress) =>
+                    CircularProgressIndicator(value: downloadProgress.progress),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
             ),
           ),
           const SizedBox(width: 10),
@@ -377,6 +464,7 @@ class EditPostingan extends GetView<PostingBugController> {
   Widget _buildImageAndTextField(BuildContext context) {
     return Column(
       children: [
+        Text(Get.arguments['hash_id'] ?? 'Nothing here on id'),
         Container(
           width: Get.width,
           padding: const EdgeInsets.only(left: 16.0),
