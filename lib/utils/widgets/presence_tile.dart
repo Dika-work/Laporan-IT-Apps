@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
 import 'package:laporan/utils/widgets/expandable_text.dart';
+import 'package:laporan/utils/widgets/image%20widget/image_grid.dart';
 
 class PresenceTile extends StatelessWidget {
   final String nama;
@@ -15,7 +16,7 @@ class PresenceTile extends StatelessWidget {
   final String deskripsi;
   final String priority;
   final String statusKerja;
-  final String laporanFoto;
+  final List<String> laporanFoto;
   final void Function()? eventEdit;
   final void Function()? deleteEvent;
   const PresenceTile({
@@ -260,12 +261,7 @@ class PresenceTile extends StatelessWidget {
               )),
           Padding(
             padding: const EdgeInsets.only(top: CustomSize.xs),
-            child: CachedNetworkImage(
-              imageUrl: laporanFoto,
-              progressIndicatorBuilder: (context, url, downloadProgress) =>
-                  CircularProgressIndicator(value: downloadProgress.progress),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-            ), //https://i.pinimg.com/736x/c2/d0/61/c2d0613295adec2fe01b1a29ee4930df.jpg
+            child: ImageGridWidget(imageUrls: laporanFoto),
           )
         ],
       ),

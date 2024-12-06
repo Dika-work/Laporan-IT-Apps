@@ -85,7 +85,7 @@ class PostingBug extends GetView<PostingBugController> {
                 return;
               }
 
-              if (controller.selectedImage.value == null) {
+              if (controller.selectedImages.isEmpty) {
                 Get.snackbar(
                   'Error',
                   'Silakan pilih gambar terlebih dahulu.',
@@ -101,9 +101,9 @@ class PostingBug extends GetView<PostingBugController> {
                   DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
 
               controller.postingLampiranBug(
-                selectedCategory.value!.title,
-                priorityLevel.value.toString(),
-                formattedDate,
+                apk: selectedCategory.value!.title,
+                priority: priorityLevel.value.toString(),
+                tglDiproses: formattedDate,
               );
             },
             child: Container(
@@ -128,7 +128,7 @@ class PostingBug extends GetView<PostingBugController> {
       ),
       body: Obx(() {
         return SingleChildScrollView(
-          physics: controller.selectedImage.value == null
+          physics: controller.selectedImages.isEmpty
               ? const NeverScrollableScrollPhysics()
               : const BouncingScrollPhysics(),
           child: Form(
@@ -166,7 +166,7 @@ class PostingBug extends GetView<PostingBugController> {
                           ? AppColors.accent.withOpacity(.6)
                           : AppColors.accent.withOpacity(.4),
                       selectedCategory.value?.title ?? 'Pilih Kategori'),
-                  controller.selectedImage.value == null
+                  controller.selectedImages.isEmpty
                       ? _buildTextFormField(
                           context, 'Apa yang mau di laporkan?')
                       : _buildImageAndTextField(context)
@@ -416,24 +416,37 @@ class PostingBug extends GetView<PostingBugController> {
             ),
           ),
         ),
-        Stack(
-          children: [
-            Image.file(
-              controller.selectedImage.value!,
-              fit: BoxFit.contain,
+        Obx(() {
+          return GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 8.0,
+              mainAxisSpacing: 8.0,
             ),
-            Positioned(
-                right: 0,
-                top: 10,
-                child: IconButton(
-                  onPressed: () => controller.deleteImage(),
-                  icon: const Icon(
-                    Ionicons.trash,
-                    color: AppColors.error,
+            itemCount: controller.selectedImages.length,
+            itemBuilder: (context, index) {
+              final image = controller.selectedImages[index];
+              return Stack(
+                children: [
+                  Image.file(image),
+                  Positioned(
+                    top: 5,
+                    right: 5,
+                    child: GestureDetector(
+                      onTap: () => controller.deleteImage(index),
+                      child: const Icon(
+                        Icons.close,
+                        color: Colors.red,
+                      ),
+                    ),
                   ),
-                ))
-          ],
-        ),
+                ],
+              );
+            },
+          );
+        })
       ],
     );
   }
@@ -451,7 +464,7 @@ class PostingBug extends GetView<PostingBugController> {
           items: [
             BottomNavigationBarItem(
               icon: GestureDetector(
-                onTap: () => controller.pickImage(ImageSource.gallery),
+                onTap: () => controller.pickImages(ImageSource.gallery),
                 child: const Icon(
                   Ionicons.image,
                   size: 25,
@@ -462,7 +475,7 @@ class PostingBug extends GetView<PostingBugController> {
             ),
             BottomNavigationBarItem(
               icon: GestureDetector(
-                onTap: () => controller.pickImage(ImageSource.camera),
+                onTap: () => controller.pickImages(ImageSource.camera),
                 child: const Icon(
                   Ionicons.camera,
                   size: 25,

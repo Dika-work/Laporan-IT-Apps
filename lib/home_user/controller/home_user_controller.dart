@@ -59,11 +59,9 @@ class HomeUserController extends GetxController {
         '/getAllLaporan',
         queryParameters: {'username_hash': usernameHash},
       );
-      print('Response Data: ${response.data}');
 
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;
-        print('Response data dari API: ${response.data}');
         // Simpan data ke RxList<ProblemData>
         problemList.value = data.map((e) => ProblemData.fromJson(e)).toList();
         print('Problem List: ${problemList.length} items loaded');
@@ -71,13 +69,15 @@ class HomeUserController extends GetxController {
     } on diomultipart.DioException catch (e) {
       if (e.response?.statusCode == 429) {
         SnackbarLoader.warningSnackBar(
-            title: 'Limit Exceeded',
-            message: 'Terlalu banyak permintaan. Coba lagi nanti');
+          title: 'Limit Exceeded',
+          message: 'Terlalu banyak permintaan. Coba lagi nanti',
+        );
       } else {
-        print('ini error ketika get postingan by username hash : $e');
+        print('Error fetching data: $e');
         SnackbarLoader.warningSnackBar(
-            title: 'Error',
-            message: e.response?.data['message'] ?? 'Terjadi kesalahan');
+          title: 'Error',
+          message: e.response?.data['message'] ?? 'Terjadi kesalahan',
+        );
       }
     } finally {
       isLoading.value = false;
@@ -90,6 +90,7 @@ class HomeUserController extends GetxController {
       // Hash ID sebelum mengirim ke backend
       String hashId = generateHash(id);
       print('INI HASH ID PADA DELETE LAPORAN $hashId');
+
       // Kirim permintaan DELETE ke backend
       final response = await _dio.delete(
         '/deleteLaporan',
@@ -102,7 +103,7 @@ class HomeUserController extends GetxController {
 
         SnackbarLoader.successSnackBar(
           title: 'Berhasil',
-          message: 'Laporan berhasil dihapus',
+          message: response.data['message'] ?? 'Laporan berhasil dihapus',
         );
       } else {
         SnackbarLoader.errorSnackBar(
@@ -115,6 +116,11 @@ class HomeUserController extends GetxController {
         SnackbarLoader.warningSnackBar(
           title: 'Tidak Ditemukan',
           message: 'Laporan tidak ditemukan',
+        );
+      } else if (e.response?.statusCode == 500) {
+        SnackbarLoader.errorSnackBar(
+          title: 'Kesalahan Server',
+          message: 'Terjadi kesalahan pada server. Silakan coba lagi.',
         );
       } else {
         SnackbarLoader.errorSnackBar(

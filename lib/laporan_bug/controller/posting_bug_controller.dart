@@ -18,7 +18,7 @@ class PostingBugController extends GetxController {
   RxBool textVisible = true.obs;
   final localStorage = GetStorage();
   final formKey = GlobalKey<FormState>();
-  Rxn<File> selectedImage = Rxn<File>();
+  RxList<File> selectedImages = <File>[].obs;
   final Rxn<ApkCategoriesModel> selectedCategory = Rxn<ApkCategoriesModel>();
   RxList<ProblemData> problemList = <ProblemData>[].obs;
 
@@ -35,12 +35,12 @@ class PostingBugController extends GetxController {
     ),
   );
 
-  pickImage(ImageSource source) async {
+  pickImages(ImageSource source) async {
     final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: source);
+    final List<XFile> images = await picker.pickMultiImage();
 
-    if (image != null) {
-      selectedImage.value = File(image.path);
+    if (images.isNotEmpty) {
+      selectedImages.value = images.map((image) => File(image.path)).toList();
     } else {
       Get.snackbar(
         'Error',
@@ -52,20 +52,17 @@ class PostingBugController extends GetxController {
     }
   }
 
-  deleteImage() async {
-    if (selectedImage.value != null) {
-      await selectedImage.value!.delete();
-      selectedImage.value = null;
-    }
+  deleteImage(int index) {
+    selectedImages.removeAt(index);
   }
 
-  postingLampiranBug(
-    String? apk,
-    String priority,
-    String tglDiproses,
-  ) async {
+  postingLampiranBug({
+    required String? apk,
+    required String priority,
+    required String tglDiproses,
+  }) async {
     isLoading.value = true;
-    username.value = localStorage.read('username');
+    username.value = localStorage.read('username') ?? '';
 
     if (!formKey.currentState!.validate()) {
       isLoading.value = false;
@@ -73,51 +70,62 @@ class PostingBugController extends GetxController {
     }
 
     try {
-      diomultipart.FormData formData = diomultipart.FormData.fromMap({
-        'username': username.value,
-        'lampiran': lampiranC.text,
-        'apk': apk,
-        'priority': priority,
-        'tgl_diproses': tglDiproses,
-        'status_kerja': '0',
-        'foto_user': selectedImage.value != null
-            ? await diomultipart.MultipartFile.fromFile(
-                selectedImage.value!.path,
-                filename: selectedImage.value!.path.split('/').last,
-              )
-            : null,
-      });
+      // Log jumlah file yang akan di-upload
+      print('Jumlah file yang diupload: ${selectedImages.length}');
+      for (var image in selectedImages) {
+        print('File Path: ${image.path}');
+      }
 
-      print('Request Payload: ${formData.fields}');
-      print('Request File: ${formData.files}');
+      // Membuat FormData
+      diomultipart.FormData formData = diomultipart.FormData();
 
+      // Tambahkan data teks
+      formData.fields.addAll([
+        MapEntry('username', username.value),
+        MapEntry('lampiran', lampiranC.text),
+        MapEntry('apk', apk ?? ''),
+        MapEntry('priority', priority),
+        MapEntry('tgl_diproses', tglDiproses),
+        const MapEntry('status_kerja', '0'),
+      ]);
+
+      // Tambahkan data file
+      for (var image in selectedImages) {
+        formData.files.add(
+          MapEntry(
+            'foto_user[]',
+            await diomultipart.MultipartFile.fromFile(
+              image.path,
+              filename: image.path.split('/').last,
+            ),
+          ),
+        );
+      }
+
+      // Kirim request ke endpoint
       final response = await _dio.post('/createLaporan', data: formData);
 
+      // Respons berhasil
       if (response.statusCode == 201) {
-        print('Response success: 201 status code');
         Get.back(result: true);
         lampiranC.clear();
-        selectedImage.value = null;
-        print('DATANYA SUDAH BERHASIL MASUK POSTINGAN');
+        selectedImages.clear();
         SnackbarLoader.successSnackBar(
           title: 'Success',
           message: response.data['message'] ?? 'Lampiran berhasil ditambahkan',
         );
       } else {
-        print('Unexpected response: ${response.statusCode}');
         SnackbarLoader.errorSnackBar(
-            title: 'Oops👻',
-            message: response.data['message'] ?? 'Lampiran gagal ditambahkan');
+          title: 'Oops👻',
+          message: response.data['message'] ?? 'Lampiran gagal ditambahkan',
+        );
       }
-    } on diomultipart.DioException catch (e) {
-      print('DioException caught: $e');
-      if (e.response != null) {
-        print('Response data: ${e.response!.data}');
-      }
+    } catch (e) {
       SnackbarLoader.errorSnackBar(
         title: 'Error',
-        message: e.response?.data['message'] ?? 'Terjadi kesalahan',
+        message: 'Terjadi kesalahan: $e',
       );
+      print('ERROR POSTING BUG : $e');
     } finally {
       isLoading.value = false;
     }
@@ -127,7 +135,7 @@ class PostingBugController extends GetxController {
     required String hashId,
     required String usernameHash,
     required String lampiran,
-    required String fotoUserPath,
+    required List<String> imageUrls, // Ubah dari single URL ke list
     required String apk,
     required int priority,
   }) async {
@@ -141,25 +149,24 @@ class PostingBugController extends GetxController {
       'hash_id': id,
       'usernameHash': usernameHash,
       'lampiran': lampiran,
-      'fotoUserPath': fotoUserPath,
+      'imageUrls': imageUrls, // Tambahkan list image URLs
       'apk': apk,
       'priority': priority,
     };
 
-    // Unduh gambar jika URL valid
-    if (fotoUserPath.isNotEmpty && fotoUserPath.startsWith('http')) {
-      isLoading.value = true; // Tampilkan indikator loading
-      final downloadedImage = await downloadImage(fotoUserPath);
-      if (downloadedImage != null) {
-        selectedImage.value = downloadedImage;
-      } else {
-        print("Gagal mengunduh gambar: $fotoUserPath");
+    // Unduh semua gambar jika URL valid
+    isLoading.value = true; // Tampilkan indikator loading
+    for (var url in imageUrls) {
+      if (url.isNotEmpty && url.startsWith('http')) {
+        final downloadedImage = await downloadImage(url);
+        if (downloadedImage != null) {
+          selectedImages.add(downloadedImage); // Tambahkan ke daftar gambar
+        } else {
+          print("Gagal mengunduh gambar: $url");
+        }
       }
-      isLoading.value = false; // Sembunyikan indikator loading
-    } else if (fotoUserPath.isNotEmpty) {
-      // Jika file adalah lokal
-      selectedImage.value = File(fotoUserPath);
     }
+    isLoading.value = false; // Sembunyikan indikator loading
 
     // Inisialisasi data untuk pengeditan
     initializeEditData(arguments);
@@ -201,21 +208,20 @@ class PostingBugController extends GetxController {
     isLoading.value = true;
 
     try {
-      // Siapkan payload untuk API
-      final formData = diomultipart.FormData.fromMap({
+      diomultipart.FormData formData = diomultipart.FormData.fromMap({
         'hash_id': hashId,
         'lampiran': lampiran,
         'apk': apk.title,
         'priority': priority.toString(),
-        'foto_user': selectedImage.value != null
-            ? await diomultipart.MultipartFile.fromFile(
-                selectedImage.value!.path,
-                filename: selectedImage.value!.path.split('/').last,
-              )
-            : null,
+        'foto_user': [
+          for (var image in selectedImages)
+            await diomultipart.MultipartFile.fromFile(
+              image.path,
+              filename: image.path.split('/').last,
+            )
+        ],
       });
 
-      // Kirim request ke API
       final response = await _dio.put('/updateLaporan', data: formData);
 
       if (response.statusCode == 200) {
@@ -227,13 +233,13 @@ class PostingBugController extends GetxController {
       } else {
         SnackbarLoader.errorSnackBar(
           title: 'Gagal',
-          message: response.data['message'] ?? 'Terjadi kesalahan',
+          message: response.data['message'] ?? 'Terjadi kesalahan.',
         );
       }
-    } on diomultipart.DioException catch (e) {
+    } catch (e) {
       SnackbarLoader.errorSnackBar(
         title: 'Error',
-        message: e.response?.data['message'] ?? 'Terjadi kesalahan',
+        message: 'Terjadi kesalahan: $e',
       );
     } finally {
       isLoading.value = false;
@@ -247,18 +253,15 @@ class PostingBugController extends GetxController {
   }
 
   void initializeEditData(Map<String, dynamic> arguments) {
-    // Isi data berdasarkan arguments
     lampiranC.text = arguments['lampiran'] ?? '';
     priorityLevel.value = arguments['priority'] ?? 1;
 
-    if (arguments['fotoUserPath'] != null && arguments['fotoUserPath'] != '') {
-      final fotoUserPath = arguments['fotoUserPath'];
-      if (fotoUserPath.startsWith('http')) {
-        downloadImage(fotoUserPath).then((file) {
-          if (file != null) selectedImage.value = file;
+    // Tambahkan semua gambar ke daftar
+    if (arguments['imageUrls'] != null && arguments['imageUrls'] is List) {
+      for (var url in arguments['imageUrls']) {
+        downloadImage(url).then((file) {
+          if (file != null) selectedImages.add(file);
         });
-      } else {
-        selectedImage.value = File(fotoUserPath);
       }
     }
 
@@ -269,7 +272,7 @@ class PostingBugController extends GetxController {
 
   void resetEditState() {
     lampiranC.clear(); // Reset input lampiran
-    selectedImage.value = null; // Reset gambar yang dipilih
+    selectedImages.clear(); // Reset daftar gambar
     selectedCategory.value = null; // Reset kategori
     priorityLevel.value = 1; // Setel prioritas ke default
   }

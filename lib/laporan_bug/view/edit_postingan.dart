@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:laporan/laporan_bug/controller/posting_bug_controller.dart';
 import 'package:laporan/models/apk_categories_model.dart';
@@ -60,112 +59,97 @@ class EditPostingan extends GetView<PostingBugController> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-          leading: IconButton(
-            onPressed: () async {
-              final isConfirmed = await CustomDialogs.defaultDialog(
-                context: Get.overlayContext!,
-                contentWidget: const Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                        'Perubahan belum disimpan. Apakah Anda ingin melanjutkan?'),
-                  ],
-                ),
-                onConfirm: () {
-                  Navigator.of(Get.overlayContext!).pop(true);
-                  Navigator.of(Get.overlayContext!).pop(true);
-                },
-                onCancel: () {
-                  Navigator.of(Get.overlayContext!).pop(false);
-                },
-                confirmText: 'Kembali',
-              );
-
-              if (isConfirmed == true) {
-                controller.resetEditState();
-                Get.back();
-              }
-            },
-            icon: const Icon(Icons.arrow_back),
-          ),
-          title: Text(
-            'Edit Postingan',
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(fontWeight: FontWeight.w400, color: Colors.black),
-          ),
-          actions: [
-            GestureDetector(
-              onTap: () async {
-                if (controller.selectedCategory.value == null) {
-                  Get.snackbar(
-                    'Error',
-                    'Silakan pilih kategori aplikasi terlebih dahulu.',
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: Colors.red,
-                    colorText: Colors.white,
-                  );
-                  return;
-                }
-
-                if (controller.selectedImage.value == null) {
-                  Get.snackbar(
-                    'Error',
-                    'Silakan pilih gambar terlebih dahulu.',
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: Colors.red,
-                    colorText: Colors.white,
-                  );
-                  return;
-                }
-
-                // Ambil hash_id dari arguments
-                final hashId = Get.arguments['hash_id'];
-                if (hashId == null) {
-                  Get.snackbar(
-                    'Error',
-                    'Hash ID tidak ditemukan.',
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: Colors.red,
-                    colorText: Colors.white,
-                  );
-                  return;
-                }
-
-                // Format tanggal saat ini
-                final now = DateTime.now();
-                final String formattedDate =
-                    DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
-
-                // Panggil controller untuk update laporan
-                await controller.updateLaporan(
-                  hashId: hashId,
-                  lampiran: controller.lampiranC.text,
-                  apk: controller.selectedCategory.value!,
-                  priority: controller.priorityLevel.value,
-                );
+        leading: IconButton(
+          onPressed: () async {
+            final isConfirmed = await CustomDialogs.defaultDialog(
+              context: Get.overlayContext!,
+              contentWidget: const Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                      'Perubahan belum disimpan. Apakah Anda ingin melanjutkan?'),
+                ],
+              ),
+              onConfirm: () {
+                Navigator.of(Get.overlayContext!).pop(true);
+                Navigator.of(Get.overlayContext!).pop(true);
               },
-              child: Container(
-                padding: const EdgeInsets.all(CustomSize.xs),
-                margin: const EdgeInsets.fromLTRB(
-                    0, CustomSize.sm, CustomSize.sm, CustomSize.sm),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  borderRadius:
-                      BorderRadius.circular(CustomSize.borderRadiusSm),
-                  color: AppColors.buttonPrimary,
-                ),
-                child: Text(
-                  'SIMPAN',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              onCancel: () {
+                Navigator.of(Get.overlayContext!).pop(false);
+              },
+              confirmText: 'Kembali',
+            );
+
+            if (isConfirmed == true) {
+              controller.resetEditState();
+              Get.back();
+            }
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
+        title: Text(
+          'Edit Postingan',
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium
+              ?.copyWith(fontWeight: FontWeight.w400, color: Colors.black),
+        ),
+        actions: [
+          GestureDetector(
+            onTap: () async {
+              if (controller.selectedCategory.value == null) {
+                Get.snackbar(
+                  'Error',
+                  'Silakan pilih kategori aplikasi terlebih dahulu.',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: Colors.red,
+                  colorText: Colors.white,
+                );
+                return;
+              }
+
+              // Ambil hash_id dari arguments
+              final hashId = Get.arguments['hash_id'];
+              if (hashId == null) {
+                Get.snackbar(
+                  'Error',
+                  'Hash ID tidak ditemukan.',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: Colors.red,
+                  colorText: Colors.white,
+                );
+                return;
+              }
+
+              // Panggil controller untuk update laporan
+              await controller.updateLaporan(
+                hashId: hashId,
+                lampiran: controller.lampiranC.text,
+                apk: controller.selectedCategory.value!,
+                priority: controller.priorityLevel.value,
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(CustomSize.xs),
+              margin: const EdgeInsets.fromLTRB(
+                  0, CustomSize.sm, CustomSize.sm, CustomSize.sm),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(CustomSize.borderRadiusSm),
+                color: AppColors.buttonPrimary,
+              ),
+              child: Text(
+                'SIMPAN',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white),
-                ),
+                      color: Colors.white,
+                    ),
               ),
             ),
-          ]),
+          ),
+        ],
+      ),
       body: Obx(() {
         if (controller.isLoading.value) {
           return const Center(
@@ -174,7 +158,7 @@ class EditPostingan extends GetView<PostingBugController> {
         }
 
         return SingleChildScrollView(
-          physics: controller.selectedImage.value == null
+          physics: controller.selectedImages.isEmpty
               ? const NeverScrollableScrollPhysics()
               : const BouncingScrollPhysics(),
           child: PopScope(
@@ -243,7 +227,7 @@ class EditPostingan extends GetView<PostingBugController> {
                             : AppColors.accent.withOpacity(.4),
                         controller.selectedCategory.value?.title ??
                             'Pilih Kategori'),
-                    controller.selectedImage.value == null
+                    controller.selectedImages.isEmpty
                         ? _buildTextFormField(
                             context, 'Apa yang mau di laporkan?')
                         : _buildImageAndTextField(context)
@@ -495,23 +479,39 @@ class EditPostingan extends GetView<PostingBugController> {
             ),
           ),
         ),
-        Stack(
-          children: [
-            Image.file(
-              controller.selectedImage.value!,
-              fit: BoxFit.contain,
-            ),
-            Positioned(
-                right: 0,
-                top: 10,
-                child: IconButton(
-                  onPressed: () => controller.deleteImage(),
-                  icon: const Icon(
-                    Ionicons.trash,
-                    color: AppColors.error,
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3, // Menampilkan 3 gambar per baris
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+          ),
+          itemCount: controller.selectedImages.length,
+          itemBuilder: (context, index) {
+            final image = controller.selectedImages[index];
+            return Stack(
+              children: [
+                Image.file(
+                  image,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
+                Positioned(
+                  right: 0,
+                  top: 10,
+                  child: IconButton(
+                    onPressed: () => controller.deleteImage(index),
+                    icon: const Icon(
+                      Ionicons.trash,
+                      color: AppColors.error,
+                    ),
                   ),
-                ))
-          ],
+                ),
+              ],
+            );
+          },
         ),
       ],
     );
@@ -520,37 +520,40 @@ class EditPostingan extends GetView<PostingBugController> {
   Widget _buildBottomNavigationBar() {
     return Container(
       decoration: BoxDecoration(
-          border: Border.all(
-              strokeAlign: BorderSide.strokeAlignOutside,
-              style: BorderStyle.solid,
-              color: AppColors.secondarySoft)),
+        border: Border.all(
+          strokeAlign: BorderSide.strokeAlignOutside,
+          style: BorderStyle.solid,
+          color: AppColors.secondarySoft,
+        ),
+      ),
       child: BottomNavigationBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          items: [
-            BottomNavigationBarItem(
-              icon: GestureDetector(
-                onTap: () => controller.pickImage(ImageSource.gallery),
-                child: const Icon(
-                  Ionicons.image,
-                  size: 25,
-                  color: Color(0xff45bd63),
-                ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        items: [
+          BottomNavigationBarItem(
+            icon: GestureDetector(
+              onTap: () => controller.pickImages(ImageSource.gallery),
+              child: const Icon(
+                Ionicons.image,
+                size: 25,
+                color: Color(0xff45bd63),
               ),
-              label: 'Album',
             ),
-            BottomNavigationBarItem(
-              icon: GestureDetector(
-                onTap: () => controller.pickImage(ImageSource.camera),
-                child: const Icon(
-                  Ionicons.camera,
-                  size: 25,
-                  color: Color(0xff4699ff),
-                ),
+            label: 'Album',
+          ),
+          BottomNavigationBarItem(
+            icon: GestureDetector(
+              onTap: () => controller.pickImages(ImageSource.camera),
+              child: const Icon(
+                Ionicons.camera,
+                size: 25,
+                color: Color(0xff4699ff),
               ),
-              label: 'Kamera',
             ),
-          ]),
+            label: 'Kamera',
+          ),
+        ],
+      ),
     );
   }
 }

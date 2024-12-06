@@ -189,13 +189,13 @@ class HomeUser extends GetView<HomeUserController> {
                   tglDiproses: problem.tglDiproses,
                   priority: problem.priority,
                   statusKerja: problem.statusKerja,
-                  laporanFoto: problem.fotoUser,
+                  laporanFoto: problem.images,
                   eventEdit: () async {
                     final result = await postinganController.getDataBeforeEdit(
                         hashId: problem.id,
                         usernameHash: controller.usernameHash.value,
                         lampiran: problem.lampiran,
-                        fotoUserPath: problem.fotoUser,
+                        imageUrls: problem.images,
                         apk: problem.apk,
                         priority: int.parse(problem.priority));
 
