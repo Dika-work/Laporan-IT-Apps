@@ -62,6 +62,7 @@ class LoginController extends GetxController {
         localStorage.write('type_user', data['type_user']);
         localStorage.write('foto_user', fotoUserUrl);
 
+        await localStorage.write('isLoggedIn', true);
         await fetchUsername();
 
         SnackbarLoader.successSnackBar(

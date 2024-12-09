@@ -150,6 +150,7 @@ class HomeUserController extends GetxController {
     localStorage.remove('type_user');
     localStorage.remove('foto_user');
     localStorage.remove('divisi');
+    localStorage.write('isLoggedIn', false);
     Get.offAllNamed(Routes.LOGIN);
   }
 }

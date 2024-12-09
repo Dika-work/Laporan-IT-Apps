@@ -23,6 +23,7 @@ class HomeUser extends GetView<HomeUserController> {
     });
     final postinganController = Get.put(PostingBugController());
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.primaryExtraSoft,
       body: ListView(
         shrinkWrap: true,
@@ -30,70 +31,63 @@ class HomeUser extends GetView<HomeUserController> {
         padding: EdgeInsets.zero,
         children: [
           // Bagian atas (Langgeng Pranamas Sentosa)
-          RefreshIndicator(
-            onRefresh: () async {
-              print('ini dah di refresh');
-            },
-            child: Container(
-              margin: const EdgeInsets.only(bottom: CustomSize.sm),
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.fromLTRB(
-                  CustomSize.sm, 0, CustomSize.md, CustomSize.sm),
-              decoration: BoxDecoration(
-                border: const Border(
-                  bottom: BorderSide(
-                    width: 1,
-                    color: AppColors.secondarySoft,
-                  ),
-                ),
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(CustomSize.borderRadiusLg),
-                  bottomRight: Radius.circular(CustomSize.borderRadiusLg),
-                ),
-                gradient: LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [
-                    Colors.white.withOpacity(0.7),
-                    Colors.white.withOpacity(0.5),
-                  ],
+          Container(
+            margin: const EdgeInsets.only(bottom: CustomSize.sm),
+            width: MediaQuery.of(context).size.width,
+            padding: const EdgeInsets.fromLTRB(
+                CustomSize.sm, 0, CustomSize.md, CustomSize.sm),
+            decoration: BoxDecoration(
+              border: const Border(
+                bottom: BorderSide(
+                  width: 1,
+                  color: AppColors.secondarySoft,
                 ),
               ),
-              child: SafeArea(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: CustomSize.sm),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Langgeng Pranamas Sentosa',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          Text(
-                            controller.username.value.toUpperCase(),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.textPrimary,
-                                ),
-                          ),
-                        ],
-                      ),
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(CustomSize.borderRadiusLg),
+                bottomRight: Radius.circular(CustomSize.borderRadiusLg),
+              ),
+              gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [
+                  Colors.white.withOpacity(0.7),
+                  Colors.white.withOpacity(0.5),
+                ],
+              ),
+            ),
+            child: SafeArea(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: CustomSize.sm),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Langgeng Pranamas Sentosa',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        Text(
+                          controller.username.value.toUpperCase(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textPrimary,
+                                  ),
+                        ),
+                      ],
                     ),
-                    Image.asset(
-                      'assets/images/lps.png',
-                      width: 40,
-                    ),
-                  ],
-                ),
+                  ),
+                  Image.asset(
+                    'assets/images/lps.png',
+                    width: 40,
+                  ),
+                ],
               ),
             ),
           ),
@@ -191,16 +185,50 @@ class HomeUser extends GetView<HomeUserController> {
                   statusKerja: problem.statusKerja,
                   laporanFoto: problem.images,
                   eventEdit: () async {
-                    final result = await postinganController.getDataBeforeEdit(
-                        hashId: problem.id,
+                    // controller.isLoading.value =
+                    //     true; // Mulai indikator loading
+
+                    try {
+                      // Panggil fungsi untuk mengambil data sebelum edit
+                      final result =
+                          await postinganController.getDataBeforeEdit(
+                        hashId: controller.generateHash(problem.id),
                         usernameHash: controller.usernameHash.value,
                         lampiran: problem.lampiran,
                         imageUrls: problem.images,
                         apk: problem.apk,
-                        priority: int.parse(problem.priority));
+                        priority: int.parse(problem.priority),
+                      );
 
-                    if (result == true) {
-                      controller.getAllLaporan(controller.usernameHash.value);
+                      if (result == true) {
+                        // Navigasi ke halaman edit jika berhasil
+                        await Get.toNamed(
+                          Routes.EDIT_POSTING,
+                          arguments: {
+                            'hash_id': controller.generateHash(problem.id),
+                            'lampiran': problem.lampiran,
+                            'images': problem.images,
+                            'apk': problem.apk,
+                            'priority': int.parse(problem.priority),
+                          },
+                        );
+
+                        // Perbarui daftar laporan setelah navigasi berhasil
+                        controller.getAllLaporan(controller.usernameHash.value);
+                      } else {
+                        Get.snackbar(
+                          'Error',
+                          'Gagal memuat data untuk diedit',
+                          snackPosition: SnackPosition.BOTTOM,
+                        );
+                      }
+                    } catch (e) {
+                      print('Error saat eventEdit: $e');
+                      Get.snackbar(
+                        'Error',
+                        'Terjadi kesalahan saat memuat data',
+                        snackPosition: SnackPosition.BOTTOM,
+                      );
                     }
                   },
                   deleteEvent: () => controller.deleteLaporan(problem.id),

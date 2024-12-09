@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -21,6 +23,14 @@ class EditPostingan extends GetView<PostingBugController> {
     final username = storage.read('username');
     final fotoProfile = storage.read('foto_user');
     final divisi = storage.read('divisi');
+
+    final arguments = Get.arguments as Map<String, dynamic>;
+    final List<String> images = List<String>.from(arguments['images']);
+    controller.lampiranC.text = arguments['lampiran'] ?? '';
+    controller.selectedCategory.value =
+        ApkCategoriesModel.fromString(arguments['apk'] ?? '');
+    controller.priorityLevel.value =
+        int.tryParse(arguments['priority'].toString()) ?? 1;
 
     String priorityNameFromValue(int value) {
       Map<int, String> priorityName = {
@@ -71,6 +81,7 @@ class EditPostingan extends GetView<PostingBugController> {
                 ],
               ),
               onConfirm: () {
+                controller.resetEditState();
                 Navigator.of(Get.overlayContext!).pop(true);
                 Navigator.of(Get.overlayContext!).pop(true);
               },
@@ -81,7 +92,6 @@ class EditPostingan extends GetView<PostingBugController> {
             );
 
             if (isConfirmed == true) {
-              controller.resetEditState();
               Get.back();
             }
           },
@@ -176,6 +186,8 @@ class EditPostingan extends GetView<PostingBugController> {
                   ],
                 ),
                 onConfirm: () {
+                  controller.resetEditState();
+
                   Navigator.of(Get.overlayContext!).pop(true);
                   Navigator.of(Get.overlayContext!).pop(true);
                 },
@@ -186,7 +198,6 @@ class EditPostingan extends GetView<PostingBugController> {
               );
 
               if (isConfirmed == true) {
-                controller.resetEditState();
                 Navigator.of(Get.overlayContext!).pop(true);
               }
             },
@@ -230,7 +241,7 @@ class EditPostingan extends GetView<PostingBugController> {
                     controller.selectedImages.isEmpty
                         ? _buildTextFormField(
                             context, 'Apa yang mau di laporkan?')
-                        : _buildImageAndTextField(context)
+                        : _buildImageAndTextField(context, images)
                   ],
                 ),
               ),
@@ -445,10 +456,9 @@ class EditPostingan extends GetView<PostingBugController> {
     );
   }
 
-  Widget _buildImageAndTextField(BuildContext context) {
+  Widget _buildImageAndTextField(BuildContext context, List<String> imageUrls) {
     return Column(
       children: [
-        Text(Get.arguments['hash_id'] ?? 'Nothing here on id'),
         Container(
           width: Get.width,
           padding: const EdgeInsets.only(left: 16.0),
@@ -469,7 +479,6 @@ class EditPostingan extends GetView<PostingBugController> {
             },
             decoration: InputDecoration(
               border: InputBorder.none,
-              errorBorder: InputBorder.none,
               enabledBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
               disabledBorder: InputBorder.none,
@@ -487,24 +496,31 @@ class EditPostingan extends GetView<PostingBugController> {
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
           ),
-          itemCount: controller.selectedImages.length,
+          itemCount: imageUrls.length,
           itemBuilder: (context, index) {
-            final image = controller.selectedImages[index];
+            final imageUrl = imageUrls[index];
             return Stack(
               children: [
-                Image.file(
-                  image,
+                CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  placeholder: (context, url) =>
+                      const CircularProgressIndicator(),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
                   fit: BoxFit.cover,
-                  width: double.infinity,
-                  height: double.infinity,
                 ),
                 Positioned(
                   right: 0,
                   top: 10,
                   child: IconButton(
-                    onPressed: () => controller.deleteImage(index),
+                    onPressed: () {
+                      Get.snackbar(
+                        'Info',
+                        'Anda tidak dapat menghapus gambar yang sudah ada di laporan ini.',
+                        snackPosition: SnackPosition.BOTTOM,
+                      );
+                    },
                     icon: const Icon(
-                      Ionicons.trash,
+                      Ionicons.lock_closed_outline,
                       color: AppColors.error,
                     ),
                   ),

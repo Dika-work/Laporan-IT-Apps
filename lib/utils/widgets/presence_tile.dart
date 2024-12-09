@@ -93,7 +93,7 @@ class PresenceTile extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(
-                CustomSize.sm, CustomSize.sm, CustomSize.xs, CustomSize.xs),
+                CustomSize.md, CustomSize.sm, CustomSize.sm, CustomSize.xs),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -260,7 +260,7 @@ class PresenceTile extends StatelessWidget {
                 text: deskripsi,
               )),
           Padding(
-            padding: const EdgeInsets.only(top: CustomSize.xs),
+            padding: const EdgeInsets.only(top: CustomSize.sm),
             child: ImageGridWidget(imageUrls: laporanFoto),
           )
         ],

@@ -10,7 +10,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:laporan/models/apk_categories_model.dart';
 import 'package:laporan/models/problem_data.dart';
 import 'package:laporan/utils/loadings/snackbar.dart';
-import 'package:laporan/utils/routes/app_pages.dart';
 import 'package:path_provider/path_provider.dart';
 
 class PostingBugController extends GetxController {
@@ -135,47 +134,42 @@ class PostingBugController extends GetxController {
     required String hashId,
     required String usernameHash,
     required String lampiran,
-    required List<String> imageUrls, // Ubah dari single URL ke list
+    required List<String> imageUrls,
     required String apk,
     required int priority,
   }) async {
-    // Reset state sebelum memuat data baru
-    resetEditState();
+    try {
+      resetEditState(); // Reset state sebelum memuat data baru
+      isLoading.value = true; // Mulai indikator loading
 
-    String id = generateHash(hashId);
-
-    // Siapkan arguments
-    final arguments = {
-      'hash_id': id,
-      'usernameHash': usernameHash,
-      'lampiran': lampiran,
-      'imageUrls': imageUrls, // Tambahkan list image URLs
-      'apk': apk,
-      'priority': priority,
-    };
-
-    // Unduh semua gambar jika URL valid
-    isLoading.value = true; // Tampilkan indikator loading
-    for (var url in imageUrls) {
-      if (url.isNotEmpty && url.startsWith('http')) {
-        final downloadedImage = await downloadImage(url);
-        if (downloadedImage != null) {
-          selectedImages.add(downloadedImage); // Tambahkan ke daftar gambar
-        } else {
-          print("Gagal mengunduh gambar: $url");
+      // Unduh semua gambar jika URL valid
+      for (var url in imageUrls) {
+        if (url.isNotEmpty && url.startsWith('http')) {
+          final downloadedImage = await downloadImage(url);
+          if (downloadedImage != null &&
+              !selectedImages
+                  .any((image) => image.path == downloadedImage.path)) {
+            selectedImages.add(downloadedImage); // Tambahkan hanya jika unik
+          }
         }
       }
+
+      // Simpan data ke controller untuk digunakan di halaman Edit
+      lampiranC.text = lampiran;
+      selectedCategory.value = ApkCategoriesModel.fromString(apk);
+      priorityLevel.value = priority;
+
+      print('Jumlah gambar yang diunduh: ${selectedImages.length}');
+      for (var image in selectedImages) {
+        print('Gambar path: ${image.path}');
+      }
+      return true;
+    } catch (e) {
+      print('Error pada getDataBeforeEdit: $e');
+      return false;
+    } finally {
+      isLoading.value = false; // Akhiri indikator loading
     }
-    isLoading.value = false; // Sembunyikan indikator loading
-
-    // Inisialisasi data untuk pengeditan
-    initializeEditData(arguments);
-
-    // Navigasi ke halaman edit setelah semua proses selesai
-    Get.toNamed(
-      Routes.EDIT_POSTING,
-      arguments: arguments,
-    );
   }
 
   Future<File?> downloadImage(String url) async {

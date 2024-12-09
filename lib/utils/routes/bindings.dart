@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:laporan/apk/controller/apk_categories_controller.dart';
 import 'package:laporan/laporan_bug/controller/posting_bug_controller.dart';
+import 'package:laporan/laporan_pekerjaan/controller/laporan_pekerjaan_controller.dart';
 
 import '../../home_admin/controller/home_admin_controller.dart';
 import '../../home_user/controller/home_user_controller.dart';
@@ -57,6 +58,15 @@ class ApkCategoriesBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<ApkCategoriesController>(
       () => ApkCategoriesController(),
+    );
+  }
+}
+
+class LaporanPekerjaanBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.lazyPut<LaporanPekerjaanController>(
+      () => LaporanPekerjaanController(),
     );
   }
 }

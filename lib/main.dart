@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -23,13 +22,13 @@ void main() async {
 
   String initialLocation;
   if (isFirstTime) {
-    localStorage.write('IsFirstTime', false);
-    initialLocation = Routes.LOGIN;
+    initialLocation = AppPages.INITIAL;
+    await localStorage.write('IsFirstTime', false);
   } else if (isLoggedIn) {
     initialLocation =
         typeUser == 'admin' ? Routes.HOME_ADMIN : Routes.HOME_USER;
   } else {
-    initialLocation = Routes.LOGIN;
+    initialLocation = AppPages.INITIAL;
   }
   // debugPaintSizeEnabled = true;
 

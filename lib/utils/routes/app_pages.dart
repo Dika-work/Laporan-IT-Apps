@@ -5,6 +5,7 @@ import 'package:laporan/laporan_bug/view/apk_category.dart';
 import 'package:laporan/laporan_bug/view/edit_postingan.dart';
 import 'package:laporan/laporan_bug/view/posting_bug.dart';
 import 'package:laporan/laporan_bug/view/priority_level.dart';
+import 'package:laporan/laporan_pekerjaan/view/laporan_pekerjaan_view.dart';
 import 'package:laporan/login/view/login.dart';
 import 'package:laporan/register/view/register.dart';
 import 'package:laporan/utils/routes/bindings.dart';
@@ -58,6 +59,12 @@ class AppPages {
       name: _Paths.APK_CATEGORIES,
       page: () => const AppsCategory(),
       binding: ApkCategoriesBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: _Paths.LAPORAN_PEKERJAAN,
+      page: () => const LaporanPekerjaanView(),
+      binding: LaporanPekerjaanBinding(),
       transition: Transition.rightToLeft,
     ),
   ];

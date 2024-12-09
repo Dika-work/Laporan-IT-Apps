@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:info_popup/info_popup.dart';
 import 'package:intl/intl.dart';
@@ -309,8 +310,14 @@ class _ExpandableContainerState extends State<ExpandableContainer>
                     )),
                 Padding(
                   padding: const EdgeInsets.only(top: CustomSize.xs),
-                  child: Image.network(widget
-                      .fotoUser), //'https://i.pinimg.com/736x/c2/d0/61/c2d0613295adec2fe01b1a29ee4930df.jpg'
+                  child: CachedNetworkImage(
+                    imageUrl: widget.fotoUser,
+                    placeholder: (context, url) =>
+                        const CircularProgressIndicator(),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error),
+                    fit: BoxFit.cover,
+                  ), //'https://i.pinimg.com/736x/c2/d0/61/c2d0613295adec2fe01b1a29ee4930df.jpg'
                 ),
                 Padding(
                   padding: const EdgeInsets.all(CustomSize.xs),
