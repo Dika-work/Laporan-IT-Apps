@@ -9,6 +9,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:laporan/laporan_bug/controller/posting_bug_controller.dart';
 import 'package:laporan/models/apk_categories_model.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
+import 'package:laporan/utils/loadings/snackbar.dart';
 import 'package:laporan/utils/routes/app_pages.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
 import 'package:laporan/utils/widgets/dialogs.dart';
@@ -111,26 +112,29 @@ class PostingBug extends GetView<PostingBugController> {
           GestureDetector(
             onTap: () {
               if (selectedCategory.value == null) {
-                Get.snackbar(
-                  'Error',
-                  'Silakan pilih kategori aplikasi terlebih dahulu.',
-                  snackPosition: SnackPosition.BOTTOM,
-                  backgroundColor: Colors.red,
-                  colorText: Colors.white,
-                );
+                SnackbarLoader.errorSnackBar(
+                    title: 'Oops',
+                    message: 'Silakan pilih kategori aplikasi terlebih dahulu');
                 return;
               }
 
-              if (controller.selectedImages.isEmpty) {
-                Get.snackbar(
-                  'Error',
-                  'Silakan pilih gambar terlebih dahulu.',
-                  snackPosition: SnackPosition.BOTTOM,
-                  backgroundColor: Colors.red,
-                  colorText: Colors.white,
-                );
+              if (controller.lampiranC.text.isEmpty) {
+                SnackbarLoader.errorSnackBar(
+                    title: 'Oops',
+                    message: 'Anda belum menulis text yang mau dilaporkan');
                 return;
               }
+
+              // if (controller.selectedImages.isEmpty) {
+              //   Get.snackbar(
+              //     'Error',
+              //     'Silakan pilih gambar terlebih dahulu.',
+              //     snackPosition: SnackPosition.BOTTOM,
+              //     backgroundColor: Colors.red,
+              //     colorText: Colors.white,
+              //   );
+              //   return;
+              // }
 
               final now = DateTime.now();
               final String formattedDate =
@@ -202,47 +206,44 @@ class PostingBug extends GetView<PostingBugController> {
                 }
               }
             },
-            child: Form(
-              key: controller.formKey,
-              child: Container(
-                width: Get.width,
-                margin: const EdgeInsets.only(top: 10.0),
-                color: Colors.white,
-                child: Column(
-                  children: [
-                    const SizedBox(height: CustomSize.xs),
-                    _buildUserAndCategorySection(
-                        context,
-                        username,
-                        fotoProfile,
-                        divisi,
-                        priorityColorFromValue(priorityLevel.value),
-                        priorityIconFromValue(priorityLevel.value),
-                        priorityNameFromValue(priorityLevel.value), () async {
-                      final result = await Get.toNamed(
-                        Routes.PRIORITY,
-                        arguments: priorityLevel.value,
-                      );
-                      if (result != null) {
-                        priorityLevel.value = result as int;
-                      }
-                    }, () async {
-                      final result = await Get.toNamed(Routes.APK_CATEGORY,
-                          arguments: selectedCategory.value?.idApk);
-                      if (result != null && result is ApkCategoriesModel) {
-                        selectedCategory.value = result;
-                      }
-                    },
-                        selectedCategory.value != null
-                            ? AppColors.accent.withOpacity(.6)
-                            : AppColors.accent.withOpacity(.4),
-                        selectedCategory.value?.title ?? 'Pilih Kategori'),
-                    controller.selectedImages.isEmpty
-                        ? _buildTextFormField(
-                            context, 'Apa yang mau di laporkan?')
-                        : _buildImageAndTextField(context)
-                  ],
-                ),
+            child: Container(
+              width: Get.width,
+              margin: const EdgeInsets.only(top: 10.0),
+              color: Colors.white,
+              child: Column(
+                children: [
+                  const SizedBox(height: CustomSize.xs),
+                  _buildUserAndCategorySection(
+                      context,
+                      username,
+                      fotoProfile,
+                      divisi,
+                      priorityColorFromValue(priorityLevel.value),
+                      priorityIconFromValue(priorityLevel.value),
+                      priorityNameFromValue(priorityLevel.value), () async {
+                    final result = await Get.toNamed(
+                      Routes.PRIORITY,
+                      arguments: priorityLevel.value,
+                    );
+                    if (result != null) {
+                      priorityLevel.value = result as int;
+                    }
+                  }, () async {
+                    final result = await Get.toNamed(Routes.APK_CATEGORY,
+                        arguments: selectedCategory.value?.idApk);
+                    if (result != null && result is ApkCategoriesModel) {
+                      selectedCategory.value = result;
+                    }
+                  },
+                      selectedCategory.value != null
+                          ? AppColors.accent.withOpacity(.6)
+                          : AppColors.accent.withOpacity(.4),
+                      selectedCategory.value?.title ?? 'Pilih Kategori'),
+                  controller.selectedImages.isEmpty
+                      ? _buildTextFormField(
+                          context, 'Apa yang mau di laporkan?')
+                      : _buildImageAndTextField(context)
+                ],
               ),
             ),
           ),
@@ -436,12 +437,12 @@ class PostingBug extends GetView<PostingBugController> {
         onChanged: (value) {
           controller.textVisible.value = value.isEmpty;
         },
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Kalimat lampiran tidak boleh kosong';
-          }
-          return null;
-        },
+        // validator: (value) {
+        //   if (value == null || value.isEmpty) {
+        //     return 'Kalimat lampiran tidak boleh kosong';
+        //   }
+        //   return null;
+        // },
         decoration: InputDecoration(
           border: InputBorder.none,
           enabledBorder: InputBorder.none,

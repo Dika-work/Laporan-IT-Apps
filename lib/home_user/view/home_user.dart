@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:laporan/laporan_bug/controller/posting_bug_controller.dart';
-import 'package:laporan/models/apk_categories_model.dart';
-import 'package:laporan/problem/all_problem.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
 import 'package:laporan/utils/routes/app_pages.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
@@ -207,9 +205,6 @@ class HomeUser extends GetView<HomeUserController> {
                   statusKerja: problem.statusKerja,
                   laporanFoto: problem.images,
                   eventEdit: () async {
-                    // controller.isLoading.value =
-                    //     true; // Mulai indikator loading
-
                     try {
                       // Panggil fungsi untuk mengambil data sebelum edit
                       final result =

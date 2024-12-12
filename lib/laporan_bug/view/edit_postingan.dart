@@ -12,6 +12,8 @@ import 'package:laporan/utils/routes/app_pages.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
 import 'package:laporan/utils/widgets/dialogs.dart';
 
+import '../../utils/widgets/image widget/image_grid.dart';
+
 class EditPostingan extends GetView<PostingBugController> {
   const EditPostingan({super.key});
 
@@ -23,6 +25,7 @@ class EditPostingan extends GetView<PostingBugController> {
     final divisi = storage.read('divisi');
 
     final arguments = Get.arguments;
+    final hashId = Get.arguments['hash_id'];
     final List<String> images = List<String>.from(arguments['images']);
     controller.lampiranC.text = arguments['lampiran'] ?? '';
     controller.selectedCategory.value =
@@ -117,7 +120,6 @@ class EditPostingan extends GetView<PostingBugController> {
               }
 
               // Ambil hash_id dari arguments
-              final hashId = Get.arguments['hash_id'];
               if (hashId == null) {
                 Get.snackbar(
                   'Error',
@@ -131,11 +133,11 @@ class EditPostingan extends GetView<PostingBugController> {
 
               // Panggil controller untuk update laporan
               await controller.updateLaporan(
-                hashId: hashId,
-                lampiran: controller.lampiranC.text,
-                apk: controller.selectedCategory.value!,
-                priority: controller.priorityLevel.value,
-              );
+                  hashId: hashId,
+                  lampiran: controller.lampiranC.text,
+                  apk: controller.selectedCategory.value!,
+                  priority: controller.priorityLevel.value,
+                  selectedImages: controller.selectedImages);
             },
             child: Container(
               padding: const EdgeInsets.all(CustomSize.xs),
@@ -207,6 +209,7 @@ class EditPostingan extends GetView<PostingBugController> {
                 color: Colors.white,
                 child: Column(
                   children: [
+                    Text(hashId),
                     const SizedBox(height: CustomSize.xs),
                     _buildUserAndCategorySection(
                         context,
@@ -486,47 +489,48 @@ class EditPostingan extends GetView<PostingBugController> {
             ),
           ),
         ),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3, // Menampilkan 3 gambar per baris
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-          ),
-          itemCount: imageUrls.length,
-          itemBuilder: (context, index) {
-            final imageUrl = imageUrls[index];
-            return Stack(
-              children: [
-                CachedNetworkImage(
-                  imageUrl: imageUrl,
-                  placeholder: (context, url) =>
-                      const CircularProgressIndicator(),
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
-                  fit: BoxFit.cover,
-                ),
-                Positioned(
-                  right: 0,
-                  top: 10,
-                  child: IconButton(
-                    onPressed: () {
-                      Get.snackbar(
-                        'Info',
-                        'Anda tidak dapat menghapus gambar yang sudah ada di laporan ini.',
-                        snackPosition: SnackPosition.BOTTOM,
-                      );
-                    },
-                    icon: const Icon(
-                      Ionicons.lock_closed_outline,
-                      color: AppColors.error,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
+        ImageGridWidget(imageUrls: imageUrls)
+        // GridView.builder(
+        //   shrinkWrap: true,
+        //   physics: const NeverScrollableScrollPhysics(),
+        //   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        //     crossAxisCount: 3, // Menampilkan 3 gambar per baris
+        //     crossAxisSpacing: 10,
+        //     mainAxisSpacing: 10,
+        //   ),
+        //   itemCount: imageUrls.length,
+        //   itemBuilder: (context, index) {
+        //     final imageUrl = imageUrls[index];
+        //     return Stack(
+        //       children: [
+        //         CachedNetworkImage(
+        //           imageUrl: imageUrl,
+        //           placeholder: (context, url) =>
+        //               const CircularProgressIndicator(),
+        //           errorWidget: (context, url, error) => const Icon(Icons.error),
+        //           fit: BoxFit.cover,
+        //         ),
+        //         Positioned(
+        //           right: 0,
+        //           top: 10,
+        //           child: IconButton(
+        //             onPressed: () {
+        //               Get.snackbar(
+        //                 'Info',
+        //                 'Anda tidak dapat menghapus gambar yang sudah ada di laporan ini.',
+        //                 snackPosition: SnackPosition.BOTTOM,
+        //               );
+        //             },
+        //             icon: const Icon(
+        //               Ionicons.lock_closed_outline,
+        //               color: AppColors.error,
+        //             ),
+        //           ),
+        //         ),
+        //       ],
+        //     );
+        //   },
+        // ),
       ],
     );
   }

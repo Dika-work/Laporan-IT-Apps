@@ -163,93 +163,94 @@ class PresenceTile extends StatelessWidget {
                         ?.apply(color: AppColors.textPrimary),
                   ),
                 ),
-                const SizedBox(width: CustomSize.sm),
-                InfoPopupWidget(
-                  customContent: () => Container(
-                    margin: const EdgeInsets.only(right: CustomSize.sm),
-                    decoration: BoxDecoration(
-                        color: AppColors.primaryExtraSoft,
-                        borderRadius:
-                            BorderRadius.circular(CustomSize.borderRadiusMd),
-                        border: Border.all(
-                            color: AppColors.secondarySoft, width: 1)),
-                    padding: const EdgeInsets.all(10),
-                    constraints: const BoxConstraints(
-                      maxWidth: 200, // Batasi lebar maksimum popup
-                    ),
-                    child: Column(
-                      mainAxisSize:
-                          MainAxisSize.min, // Ukuran menyesuaikan konten
-                      crossAxisAlignment: CrossAxisAlignment.start, // Rata kiri
-                      children: <Widget>[
-                        GestureDetector(
-                          onTap: () {
-                            if (context.mounted) {
-                              eventEdit?.call();
-                            }
-                          },
-                          child: Row(
-                            children: [
-                              const Icon(Icons.edit, color: AppColors.black),
-                              const SizedBox(
-                                  width: 8), // Jarak antar ikon dan teks
-                              Expanded(
-                                child: Text(
-                                  'Edit postingan',
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                  overflow: TextOverflow
-                                      .ellipsis, // Potong teks jika terlalu panjang
+                if (statusKerja == '0') const SizedBox(width: CustomSize.sm),
+                if (statusKerja == '0')
+                  InfoPopupWidget(
+                    customContent: () => Container(
+                      margin: const EdgeInsets.only(right: CustomSize.sm),
+                      decoration: BoxDecoration(
+                          color: AppColors.primaryExtraSoft,
+                          borderRadius:
+                              BorderRadius.circular(CustomSize.borderRadiusMd),
+                          border: Border.all(
+                              color: AppColors.secondarySoft, width: 1)),
+                      padding: const EdgeInsets.all(10),
+                      constraints: const BoxConstraints(
+                        maxWidth: 200, // Batasi lebar maksimum popup
+                      ),
+                      child: Column(
+                        mainAxisSize:
+                            MainAxisSize.min, // Ukuran menyesuaikan konten
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start, // Rata kiri
+                        children: <Widget>[
+                          GestureDetector(
+                            onTap: () {
+                              if (context.mounted) {
+                                eventEdit?.call();
+                              }
+                            },
+                            child: Row(
+                              children: [
+                                const Icon(Icons.edit, color: AppColors.black),
+                                const SizedBox(
+                                    width: 8), // Jarak antar ikon dan teks
+                                Expanded(
+                                  child: Text(
+                                    'Edit postingan',
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
+                                    overflow: TextOverflow
+                                        .ellipsis, // Potong teks jika terlalu panjang
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(
-                            height: CustomSize.sm), // Jarak antar item
-                        GestureDetector(
-                          onTap: () {
-                            if (context.mounted) {
-                              deleteEvent?.call();
-                            }
-                          },
-                          child: Row(
-                            children: [
-                              const Icon(Icons.delete_forever,
-                                  color: AppColors.black),
-                              const SizedBox(
-                                  width: 8), // Jarak antar ikon dan teks
-                              Expanded(
-                                child: Text(
-                                  'Hapus postingan',
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                  overflow: TextOverflow
-                                      .ellipsis, // Potong teks jika terlalu panjang
+                          const SizedBox(
+                              height: CustomSize.sm), // Jarak antar item
+                          GestureDetector(
+                            onTap: () {
+                              if (context.mounted) {
+                                deleteEvent?.call();
+                              }
+                            },
+                            child: Row(
+                              children: [
+                                const Icon(Icons.delete_forever,
+                                    color: AppColors.black),
+                                const SizedBox(
+                                    width: 8), // Jarak antar ikon dan teks
+                                Expanded(
+                                  child: Text(
+                                    'Hapus postingan',
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
+                                    overflow: TextOverflow
+                                        .ellipsis, // Potong teks jika terlalu panjang
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
+                    ),
+                    arrowTheme: const InfoPopupArrowTheme(
+                      color: AppColors.secondarySoft,
+                      arrowDirection: ArrowDirection.up,
+                    ),
+                    dismissTriggerBehavior:
+                        PopupDismissTriggerBehavior.onTapArea,
+                    areaBackgroundColor:
+                        AppColors.secondarySoft.withOpacity(.1),
+                    indicatorOffset: Offset.zero,
+                    contentOffset: Offset.zero,
+                    child: const Icon(
+                      Icons.more_horiz,
+                      color: AppColors.secondarySoft,
                     ),
                   ),
-                  arrowTheme: const InfoPopupArrowTheme(
-                    color: AppColors.secondarySoft,
-                    arrowDirection: ArrowDirection.up,
-                  ),
-                  dismissTriggerBehavior: PopupDismissTriggerBehavior.onTapArea,
-                  areaBackgroundColor: AppColors.secondarySoft.withOpacity(.1),
-                  indicatorOffset: Offset.zero,
-                  contentOffset: Offset.zero,
-                  child: const Icon(
-                    Icons.more_horiz,
-                    color: AppColors.secondarySoft,
-                  ),
-                ),
-                // GestureDetector(
-                //   onTap: deleteEvent,
-                //   child:
-                //       const Icon(Icons.delete_forever, color: AppColors.black),
-                // ),
               ],
             ),
           ),

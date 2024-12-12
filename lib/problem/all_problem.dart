@@ -40,10 +40,10 @@ class _AllProblemState extends State<AllProblem> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        return ListView(
-          shrinkWrap: true,
-          physics: const ClampingScrollPhysics(),
-          padding: EdgeInsets.zero,
+        return Column(
+          // shrinkWrap: true,
+          // physics: const ClampingScrollPhysics(),
+          // padding: EdgeInsets.zero,
           children: [
             // Filter Kategori
             _buildCategoryFilter(context),
@@ -57,13 +57,9 @@ class _AllProblemState extends State<AllProblem> {
                     .toList();
 
                 if (filteredProblems.isEmpty) {
-                  return Column(
-                    children: [
-                      Image.asset('assets/images/lps.png',
-                          width: 50, height: 50),
-                      const SizedBox(height: 16),
-                      const Text('Data Empty', style: TextStyle(fontSize: 16)),
-                    ],
+                  return Expanded(
+                    child: Image.asset('assets/images/lps.png',
+                        width: 50, height: 50),
                   );
                 }
 

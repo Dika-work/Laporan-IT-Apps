@@ -247,6 +247,7 @@ class HomeAdminController extends GetxController {
 
       if (response.statusCode == 200) {
         await getLaporanAdmin();
+        print('ini datanya : $data');
         SnackbarLoader.successSnackBar(
           title: 'Sukses',
           message: 'Status laporan berhasil diubah',

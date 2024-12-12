@@ -244,8 +244,6 @@ class _ExpandableContainerState extends State<ExpandableContainer>
                                 style: ElevatedButton.styleFrom(
                                     padding: EdgeInsets.zero),
                                 onPressed: widget.onTapDenied,
-                                // onPressed: () => print(
-                                //     'INI BTN BATAL ADMIN KETIKA NOLAK POSTINGAN USER'),
                                 child: Text(
                                   'Denied',
                                   style: Theme.of(context)
@@ -262,12 +260,8 @@ class _ExpandableContainerState extends State<ExpandableContainer>
                                 style: ElevatedButton.styleFrom(
                                     padding: EdgeInsets.zero),
                                 onPressed: widget.onTapAccept,
-                                // onPressed: () => _controller.changeStatusBug(
-                                //     hashId: widget.id,
-                                //     statusKerja:
-                                //         _getNextStatus(widget.statusKerja)),
                                 child: Text(
-                                  'Accept',
+                                  _getButtonText(widget.statusKerja),
                                   style: Theme.of(context)
                                       .textTheme
                                       .labelMedium
@@ -284,5 +278,15 @@ class _ExpandableContainerState extends State<ExpandableContainer>
         ),
       ],
     );
+  }
+
+  String _getButtonText(String statusKerja) {
+    if (statusKerja == '0') {
+      return 'Proses';
+    } else if (statusKerja == '1') {
+      return 'Selesaikan';
+    } else {
+      return 'Unknown'; // Jika status tidak dikenali
+    }
   }
 }

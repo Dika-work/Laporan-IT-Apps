@@ -7,6 +7,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:laporan/laporan_pekerjaan/controller/laporan_pekerjaan_controller.dart';
 import 'package:laporan/models/apk_categories_model.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
+import 'package:laporan/utils/loadings/snackbar.dart';
 import 'package:laporan/utils/routes/app_pages.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
 import 'package:laporan/utils/widgets/dropdown_widget.dart';
@@ -39,24 +40,16 @@ class LaporanPekerjaanView extends GetView<LaporanPekerjaanController> {
           GestureDetector(
             onTap: () {
               if (selectedCategory.value == null) {
-                Get.snackbar(
-                  'Error',
-                  'Silakan pilih kategori aplikasi terlebih dahulu.',
-                  snackPosition: SnackPosition.BOTTOM,
-                  backgroundColor: Colors.red,
-                  colorText: Colors.white,
-                );
+                SnackbarLoader.errorSnackBar(
+                    title: 'Oops',
+                    message: 'Silakan pilih kategori aplikasi terlebih dahulu');
                 return;
               }
 
               if (controller.getStatusPekerjaan == 0) {
-                Get.snackbar(
-                  'Error',
-                  'Silakan isi status pekerjaan terlebih dahulu',
-                  snackPosition: SnackPosition.BOTTOM,
-                  backgroundColor: Colors.red,
-                  colorText: Colors.white,
-                );
+                SnackbarLoader.errorSnackBar(
+                    title: 'Oops',
+                    message: 'Silakan isi status pekerjaan terlebih dahulu');
                 return;
               }
 

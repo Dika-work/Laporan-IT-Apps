@@ -80,10 +80,10 @@ class PostingBugController extends GetxController {
     isLoading.value = true;
     username.value = localStorage.read('username') ?? '';
 
-    if (!formKey.currentState!.validate()) {
-      isLoading.value = false;
-      return;
-    }
+    // if (!formKey.currentState!.validate()) {
+    //   isLoading.value = false;
+    //   return;
+    // }
 
     try {
       // Log jumlah file yang akan di-upload
@@ -215,25 +215,35 @@ class PostingBugController extends GetxController {
     required String lampiran,
     required ApkCategoriesModel apk,
     required int priority,
+    required List<File> selectedImages, // Daftar gambar yang dipilih
   }) async {
     isLoading.value = true;
 
     try {
-      diomultipart.FormData formData = diomultipart.FormData.fromMap({
+      // Mengencode gambar menjadi base64 jika ada gambar yang dipilih
+      String? encodedImage;
+      if (selectedImages.isNotEmpty) {
+        final imageBytes = await selectedImages[0].readAsBytes();
+        encodedImage = base64Encode(imageBytes);
+      }
+
+      // Menyiapkan data JSON
+      final data = {
         'hash_id': hashId,
         'lampiran': lampiran,
-        'apk': apk.idApk,
-        'priority': priority.toString(),
-        'foto_user': [
-          for (var image in selectedImages)
-            await diomultipart.MultipartFile.fromFile(
-              image.path,
-              filename: image.path.split('/').last,
-            )
-        ],
-      });
+        'apk': apk.title,
+        'priority': priority,
+        'foto_user': encodedImage, // Mengirimkan gambar sebagai base64 string
+      };
 
-      final response = await _dio.put('/updateLaporan', data: formData);
+      print('Data yang akan dikirim:');
+      print(data);
+
+      // Mengirimkan data ke backend menggunakan Dio
+      final response = await _dio.put(
+        '/updateLaporan',
+        data: data, // Mengirimkan data dalam format JSON
+      );
 
       if (response.statusCode == 200) {
         Get.back(result: true);
@@ -246,12 +256,14 @@ class PostingBugController extends GetxController {
           title: 'Gagal',
           message: response.data['message'] ?? 'Terjadi kesalahan.',
         );
+        print('Gagal update laporan: ${response.data['message']}');
       }
     } catch (e) {
       SnackbarLoader.errorSnackBar(
         title: 'Error',
         message: 'Terjadi kesalahan: $e',
       );
+      print('Error pada update laporan: $e');
     } finally {
       isLoading.value = false;
     }
