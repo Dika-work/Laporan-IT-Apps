@@ -43,7 +43,7 @@ class HomeAdminController extends GetxController {
   void onInit() {
     super.onInit();
     fetchUserData();
-    getLaporanPekerjaan(usernameHash.value);
+    // getLaporanPekerjaan(usernameHash.value);
     getLaporanAdmin();
     scrollController.addListener(scrollListener);
   }
@@ -223,6 +223,60 @@ class HomeAdminController extends GetxController {
       );
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  changeStatusBug({
+    required String hashId,
+    required String statusKerja,
+  }) async {
+    isLoading.value = true;
+
+    try {
+      final data = {
+        'hash_id': hashId,
+        'status_kerja': statusKerja,
+      };
+
+      final response = await _dio.put(
+        '/status-kerja',
+        data: data,
+      );
+
+      if (response.statusCode == 200) {
+        await getLaporanAdmin();
+        SnackbarLoader.successSnackBar(
+          title: 'Sukses',
+          message: 'Status laporan berhasil diubah',
+        );
+      } else {
+        // Tampilkan snackbar error jika gagal
+        SnackbarLoader.errorSnackBar(
+          title: 'Gagal',
+          message: response.data['message'] ?? 'Terjadi kesalahan.',
+        );
+      }
+    } catch (e) {
+      // Tampilkan snackbar error jika ada exception
+      SnackbarLoader.errorSnackBar(
+        title: 'Error',
+        message: 'Terjadi kesalahan: $e',
+      );
+      print('TERJADI ERROR SAAT CHANGE STATUS KERJA : $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<List<ProblemDataForAdmin>> getEventsByStatus(String status) async {
+    try {
+      await Future.delayed(
+          const Duration(seconds: 1)); // Simulate network delay
+      return problemList
+          .where((event) => event.statusKerja == status.toString())
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to fetch events: $e');
     }
   }
 

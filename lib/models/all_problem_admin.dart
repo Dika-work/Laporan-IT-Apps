@@ -5,7 +5,7 @@ class ProblemDataForAdmin {
   String divisi;
   String apk;
   String lampiran;
-  String fotoUser;
+  List<String> fotoUser;
   String tglDiproses;
   String statusKerja;
   String priority;
@@ -34,9 +34,10 @@ class ProblemDataForAdmin {
         divisi: json['divisi'] ?? '',
         apk: json['apk'] ?? '',
         lampiran: json['lampiran'] ?? '',
-        fotoUser: json['laporan_foto_user'] != null
-            ? '$baseUrl/${json['laporan_foto_user']}'
-            : '',
+        fotoUser: (json['images'] as List<dynamic>?)
+                ?.map((e) => '$baseUrl/${e['path']}')
+                .toList() ??
+            [],
         tglDiproses: json['tgl_diproses'] ?? '',
         statusKerja: json['status_kerja'] ?? '',
         priority: json['priority'] ?? '');

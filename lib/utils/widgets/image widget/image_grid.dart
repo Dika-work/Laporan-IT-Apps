@@ -110,9 +110,9 @@ class ImageGridWidget extends StatelessWidget {
       ];
     } else if (imageCount == 3) {
       return const [
+        QuiltedGridTile(2, 2), // Dua gambar di atas
         QuiltedGridTile(2, 2),
-        QuiltedGridTile(1, 1),
-        QuiltedGridTile(1, 1),
+        QuiltedGridTile(4, 4), // Satu gambar besar di bawah
       ];
     } else {
       return const [

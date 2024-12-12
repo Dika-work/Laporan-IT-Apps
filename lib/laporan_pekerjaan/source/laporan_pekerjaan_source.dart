@@ -32,24 +32,24 @@ class LaporanPekerjaanSource extends DataGridSource {
     int rowIndex = data.indexOf(row);
     bool isEvenRow = rowIndex % 2 == 0;
 
+    // Create cells for the first 6 columns
     List<Widget> cells = [
-      ...row.getCells().take(6).map<Widget>(
-        (e) {
-          return Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: CustomSize.md),
-            child: Text(
-              e.value.toString(),
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: CustomSize.fontSizeXm),
-            ),
-          );
-        },
-      ),
+      ...row.getCells().take(6).map<Widget>((e) {
+        return Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: CustomSize.md),
+          child: Text(
+            e.value.toString(),
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: CustomSize.fontSizeXm),
+          ),
+        );
+      }),
     ];
 
+    // Add "Edit" and "Delete" buttons if model is not empty
     if (model.isNotEmpty) {
-      // Tombol Edit
+      // Add Edit button
       cells.add(Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -60,8 +60,6 @@ class LaporanPekerjaanSource extends DataGridSource {
               onPressed: () {
                 if (onEdited != null) {
                   onEdited!(model[rowIndex]);
-                } else {
-                  return;
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -74,7 +72,7 @@ class LaporanPekerjaanSource extends DataGridSource {
         ],
       ));
 
-      // Tombol Hapus
+      // Add Delete button
       cells.add(Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -85,8 +83,6 @@ class LaporanPekerjaanSource extends DataGridSource {
               onPressed: () {
                 if (onDelete != null) {
                   onDelete!(model[rowIndex]);
-                } else {
-                  return;
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -117,21 +113,17 @@ class LaporanPekerjaanSource extends DataGridSource {
           DataGridCell<String>(columnName: 'Pekerjaan', value: '-'),
           DataGridCell<String>(columnName: 'Problem', value: '-'),
           DataGridCell<String>(columnName: 'Status', value: '-'),
-          DataGridCell<String>(columnName: 'Edit', value: '-'),
-          DataGridCell<String>(columnName: 'Hapus', value: '-'),
         ]);
       },
     );
   }
 
-  void _updateDataPager(
-    List<LaporanPekerjaanModel> model,
-    int startIndex,
-  ) {
+  void _updateDataPager(List<LaporanPekerjaanModel> model, int startIndex) {
     this.startIndex = startIndex;
     index = startIndex;
 
     if (model.isEmpty) {
+      // Jika data kosong, tampilkan baris kosong dan hilangkan kolom Edit dan Hapus
       data = _generateEmptyRows(1);
     } else {
       data = model.skip(startIndex).map<DataGridRow>((data) {
@@ -139,6 +131,7 @@ class LaporanPekerjaanSource extends DataGridSource {
         final tglParsed =
             DateFormat('dd MMM yyyy').format(DateTime.parse(data.tgl));
 
+        // Create row cells
         List<DataGridCell> cells = [
           DataGridCell<int>(columnName: 'No', value: index),
           DataGridCell<String>(columnName: 'Tanggal', value: tglParsed),
@@ -147,12 +140,13 @@ class LaporanPekerjaanSource extends DataGridSource {
           DataGridCell<String>(columnName: 'Problem', value: data.problem),
           DataGridCell<String>(
               columnName: 'Status',
-              value: data.status == '1' ? 'Selesai' : 'Belum'),
+              value: data.status == '1' ? 'Selesai' : 'Belum\nSelesai'),
         ];
 
         return DataGridRow(cells: cells);
       }).toList();
-      notifyListeners();
     }
+
+    notifyListeners();
   }
 }

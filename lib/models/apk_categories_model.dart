@@ -17,9 +17,9 @@ class ApkCategoriesModel {
   }
   factory ApkCategoriesModel.fromString(String apkName) {
     return ApkCategoriesModel(
-      idApk: 'unknown', // Default ID
-      title: apkName, // Gunakan nama aplikasi
-      subtitle: 'No subtitle available', // Default subtitle
+      idApk: 'unknown',
+      title: apkName,
+      subtitle: 'No subtitle available',
     );
   }
 }

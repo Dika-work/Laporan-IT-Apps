@@ -33,12 +33,12 @@ dependencies:
   cupertino_icons: ^1.0.8
   dio: ^5.7.0
   dropdown_button2: ^2.3.9
+  dropdown_search: ^5.0.6
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
   flutter_staggered_grid_view: ^0.7.0
-  syncfusion_flutter_datagrid: ^27.2.5
   get: ^4.6.6
   get_storage: ^2.1.1
   iconsax: ^0.0.8
@@ -47,6 +47,7 @@ dependencies:
   intl: ^0.19.0
   ionicons: ^0.2.2
   path_provider: ^2.1.5
+  syncfusion_flutter_datagrid: ^27.2.5
 
 dev_dependencies:
   flutter_lints: ^4.0.0

@@ -7,6 +7,10 @@ class ApkCategoriesController extends GetxController {
   RxBool isLoading = false.obs;
   RxList<ApkCategoriesModel> apkCategories = <ApkCategoriesModel>[].obs;
 
+  RxString selectedApk = ''.obs;
+  RxString selectedJenisApk = ''.obs;
+  RxString selectedKendaraanId = ''.obs;
+
   final diomultipart.Dio _dio = diomultipart.Dio(
     diomultipart.BaseOptions(
       baseUrl: 'http://10.3.80.4:8080', // Ganti dengan URL backend Anda
@@ -46,5 +50,45 @@ class ApkCategoriesController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  List<ApkCategoriesModel> get filteredKendaraanModel {
+    if (selectedJenisApk.value.isEmpty) {
+      return apkCategories;
+    }
+
+    final filtered = apkCategories
+        .where(
+          (kendaraan) => kendaraan.title
+              .toLowerCase()
+              .contains(selectedJenisApk.value.toLowerCase()),
+        )
+        .toList();
+
+    return filtered;
+  }
+
+  void updateSelectedKendaraan(String value) {
+    final kendaraan = filteredKendaraanModel.firstWhere(
+      (kendaraan) => kendaraan.title == value,
+      orElse: () => ApkCategoriesModel(
+        idApk: '',
+        title: '',
+        subtitle: '',
+      ),
+    );
+
+    selectedApk.value = kendaraan.title;
+    selectedKendaraanId.value = kendaraan.idApk;
+  }
+
+  void setselectedJenisApk(String jenis) {
+    selectedJenisApk.value = jenis;
+    updateSelectedKendaraan(selectedApk.value); // Menjaga konsistensi
+  }
+
+  void resetSelectedKendaraan() {
+    selectedApk.value = '';
+    selectedApk.value = '';
   }
 }

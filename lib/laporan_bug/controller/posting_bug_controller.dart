@@ -205,7 +205,7 @@ class PostingBugController extends GetxController {
       diomultipart.FormData formData = diomultipart.FormData.fromMap({
         'hash_id': hashId,
         'lampiran': lampiran,
-        'apk': apk.title,
+        'apk': apk.idApk,
         'priority': priority.toString(),
         'foto_user': [
           for (var image in selectedImages)

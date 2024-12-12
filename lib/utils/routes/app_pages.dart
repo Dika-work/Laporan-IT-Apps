@@ -67,5 +67,11 @@ class AppPages {
       binding: LaporanPekerjaanBinding(),
       transition: Transition.rightToLeft,
     ),
+    // GetPage(
+    //   name: _Paths.EDIT_PEKERJAAN,
+    //   page: () => const EditLaporanPekerjaan(),
+    //   binding: LaporanPekerjaanBinding(),
+    //   transition: Transition.rightToLeft,
+    // ),
   ];
 }

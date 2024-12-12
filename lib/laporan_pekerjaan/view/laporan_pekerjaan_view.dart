@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:laporan/laporan_pekerjaan/controller/laporan_pekerjaan_controller.dart';
@@ -43,6 +42,17 @@ class LaporanPekerjaanView extends GetView<LaporanPekerjaanController> {
                 Get.snackbar(
                   'Error',
                   'Silakan pilih kategori aplikasi terlebih dahulu.',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: Colors.red,
+                  colorText: Colors.white,
+                );
+                return;
+              }
+
+              if (controller.getStatusPekerjaan == 0) {
+                Get.snackbar(
+                  'Error',
+                  'Silakan isi status pekerjaan terlebih dahulu',
                   snackPosition: SnackPosition.BOTTOM,
                   backgroundColor: Colors.red,
                   colorText: Colors.white,

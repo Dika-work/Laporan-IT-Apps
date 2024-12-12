@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -24,7 +22,7 @@ class EditPostingan extends GetView<PostingBugController> {
     final fotoProfile = storage.read('foto_user');
     final divisi = storage.read('divisi');
 
-    final arguments = Get.arguments as Map<String, dynamic>;
+    final arguments = Get.arguments;
     final List<String> images = List<String>.from(arguments['images']);
     controller.lampiranC.text = arguments['lampiran'] ?? '';
     controller.selectedCategory.value =

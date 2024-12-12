@@ -3,15 +3,13 @@ import 'package:get/get.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
 import 'package:laporan/utils/widgets/expandable_container.dart';
-import 'package:laporan/utils/widgets/presence_tile.dart';
 
 import '../home_admin/controller/home_admin_controller.dart';
 
 class AllProblem extends StatefulWidget {
   final String initialCategory;
 
-  const AllProblem(
-      {super.key, this.initialCategory = '0'}); // Default ke Problem Baru
+  const AllProblem({super.key, this.initialCategory = '0'});
 
   @override
   State<AllProblem> createState() => _AllProblemState();
@@ -48,11 +46,11 @@ class _AllProblemState extends State<AllProblem> {
           children: [
             // Filter Kategori
             _buildCategoryFilter(context),
-
             // List Problem
             ValueListenableBuilder<String>(
               valueListenable: _selectedCategory,
               builder: (context, selectedCategory, _) {
+                // Ambil filtered problems berdasarkan kategori yang dipilih
                 final filteredProblems = _controller.problemList
                     .where((problem) => problem.statusKerja == selectedCategory)
                     .toList();
@@ -68,17 +66,26 @@ class _AllProblemState extends State<AllProblem> {
                   );
                 }
 
+                // Gunakan ListView.builder untuk menampilkan masalah
                 return ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   padding: const EdgeInsets.only(top: CustomSize.sm),
-                  itemCount: filteredProblems.length,
+                  itemCount: filteredProblems.length +
+                      (_controller.isLoadingMore.value
+                          ? 1
+                          : 0), // Tambahkan item loading spinner
                   itemBuilder: (context, index) {
-                    final problem = filteredProblems[index];
+                    if (index == filteredProblems.length) {
+                      // Menampilkan indikator loading saat memuat data tambahan
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
+                    final problem = filteredProblems[index];
                     return Padding(
                       padding: const EdgeInsets.only(bottom: CustomSize.sm),
                       child: ExpandableContainer(
+                        id: _controller.generateHash(problem.id),
                         nama: problem.username,
                         fotoProfile: problem.fotoProfile,
                         divisi: problem.divisi,
@@ -89,6 +96,12 @@ class _AllProblemState extends State<AllProblem> {
                         statusKerja: problem.statusKerja,
                         fotoUser: problem.fotoUser,
                         bgTransitionColor: AppColors.white,
+                        onTapAccept: () => _controller.changeStatusBug(
+                            hashId: _controller.generateHash(problem.id),
+                            statusKerja: _getNextStatus(problem.statusKerja)),
+                        onTapDenied: () => _controller.changeStatusBug(
+                            hashId: _controller.generateHash(problem.id),
+                            statusKerja: _getPrepStatus(problem.statusKerja)),
                       ),
                     );
                   },
@@ -101,10 +114,34 @@ class _AllProblemState extends State<AllProblem> {
     );
   }
 
+  // Fungsi untuk mendapatkan status berikutnya (terima -> proses -> selesai)
+  String _getNextStatus(String currentStatus) {
+    switch (currentStatus) {
+      case '0':
+        return '1'; // Dari Problem Baru -> ke Problem Proses
+      case '1':
+        return '2'; // Dari Problem Proses -> ke Problem Selesai
+      default:
+        return currentStatus; // Tidak ada perubahan
+    }
+  }
+
+  // Fungsi untuk menolak status menjadi 0
+  String _getPrepStatus(String currentStatus) {
+    switch (currentStatus) {
+      case '0':
+        return '2'; // Dari Problem Baru -> ke Problem Proses
+      case '1':
+        return '2'; // Dari Problem Proses -> ke Problem Selesai
+      default:
+        return currentStatus; // Tidak ada perubahan
+    }
+  }
+
   Widget _buildCategoryFilter(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width,
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
       decoration: BoxDecoration(
         border: const Border(
           bottom: BorderSide(

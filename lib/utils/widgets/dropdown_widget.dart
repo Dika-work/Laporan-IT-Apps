@@ -37,31 +37,30 @@ class DropDownWidget extends StatelessWidget {
                 ))
             .toList(),
         value: value,
-        onChanged: onChanged,
+        onChanged: onChanged != null ? (value) => onChanged!(value) : null,
         buttonStyleData: ButtonStyleData(
           height: 55,
           width: MediaQuery.of(context).size.width,
           padding: const EdgeInsets.symmetric(horizontal: CustomSize.md),
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(CustomSize.inputFieldRadius),
-              border: Border.all(
-                width: 1,
-                color: AppColors.borderPrimary,
-              ),
-              color: AppColors.primaryBackground),
+            borderRadius: BorderRadius.circular(CustomSize.inputFieldRadius),
+            border: Border.all(
+              width: 1,
+              color: AppColors.borderPrimary,
+            ),
+            color: AppColors.primaryBackground,
+          ),
           elevation: 2,
         ),
         iconStyleData: const IconStyleData(
-          icon: Icon(
-            Icons.arrow_forward_ios_outlined,
-          ),
+          icon: Icon(Icons.arrow_forward_ios_outlined),
           iconSize: 14,
           iconEnabledColor: AppColors.darkGrey,
           iconDisabledColor: Colors.grey,
         ),
         dropdownStyleData: DropdownStyleData(
           maxHeight: 200,
-          width: widthDropdownValue,
+          width: widthDropdownValue ?? 200, // default to 200 if null
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(CustomSize.inputFieldRadius),
             border: Border.all(

@@ -1,15 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:info_popup/info_popup.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
 import 'package:laporan/utils/widgets/expandable_text.dart';
+import 'package:laporan/utils/widgets/image%20widget/image_grid.dart';
 
 class ExpandableContainer extends StatefulWidget {
   const ExpandableContainer({
     super.key,
-    this.onTap,
+    required this.onTapAccept,
+    required this.onTapDenied,
+    required this.id,
     required this.nama,
     required this.fotoProfile,
     required this.divisi,
@@ -22,7 +25,9 @@ class ExpandableContainer extends StatefulWidget {
     this.bgTransitionColor,
   });
 
-  final void Function()? onTap;
+  final void Function()? onTapAccept;
+  final void Function()? onTapDenied;
+  final String id;
   final String nama;
   final String fotoProfile;
   final String divisi;
@@ -31,7 +36,7 @@ class ExpandableContainer extends StatefulWidget {
   final String deskripsi;
   final String priority;
   final String statusKerja;
-  final String fotoUser;
+  final List<String> fotoUser;
   final Color? bgTransitionColor;
 
   @override
@@ -40,6 +45,7 @@ class ExpandableContainer extends StatefulWidget {
 
 class _ExpandableContainerState extends State<ExpandableContainer>
     with SingleTickerProviderStateMixin {
+  final storage = GetStorage();
   late AnimationController _animationController;
   late Animation<double> animation;
   bool _isExpanded = false;
@@ -76,6 +82,7 @@ class _ExpandableContainerState extends State<ExpandableContainer>
 
   @override
   Widget build(BuildContext context) {
+    final typeUser = storage.read('type_user');
     String statusKerjaFromValue(String value) {
       Map<String, String> statusKerja = {
         'Baru': '0',
@@ -132,167 +139,81 @@ class _ExpandableContainerState extends State<ExpandableContainer>
           child: Container(
             width: MediaQuery.of(context).size.width,
             decoration: const BoxDecoration(color: AppColors.white),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(CustomSize.md,
-                      CustomSize.sm, CustomSize.md, CustomSize.xs),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  CustomSize.md, CustomSize.sm, CustomSize.sm, CustomSize.xs),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  ClipOval(
+                    child: SizedBox(
+                      width: 42,
+                      height: 42,
+                      child: CachedNetworkImage(
+                        imageUrl: widget.fotoProfile,
+                        progressIndicatorBuilder:
+                            (context, url, downloadProgress) =>
+                                CircularProgressIndicator(
+                                    value: downloadProgress.progress),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: CustomSize.sm),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ClipOval(
-                        child: SizedBox(
-                          width: 42,
-                          height: 42,
-                          child: Image.network(
-                            widget
-                                .fotoProfile, //https://static.vecteezy.com/system/resources/thumbnails/019/900/322/small/happy-young-cute-illustration-face-profile-png.png
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+                      Text('${widget.nama} - ${widget.divisi}',
+                          style: Theme.of(context).textTheme.bodyMedium),
+                      Text(
+                        '${DateFormat('dd MMM yyyy').format(DateTime.parse(widget.tglDiproses))} - ${DateFormat('HH:mm').format(DateTime.parse(widget.tglDiproses))}',
+                        style: Theme.of(context).textTheme.labelMedium,
                       ),
-                      const SizedBox(width: CustomSize.sm),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('${widget.nama} - ${widget.divisi}',
-                              style: Theme.of(context).textTheme.bodyMedium),
-                          Text(
-                            '${DateFormat('dd MMM yyyy').format(DateTime.parse(widget.tglDiproses))} - ${DateFormat('HH:mm').format(DateTime.parse(widget.tglDiproses))}',
-                            style: Theme.of(context).textTheme.labelMedium,
-                          ),
-                          Text(
-                            widget.apk,
-                            style: Theme.of(context).textTheme.labelMedium,
-                          ),
-                        ],
-                      ),
-                      Expanded(child: Container()),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: CustomSize.xs, horizontal: CustomSize.sm),
-                        decoration: BoxDecoration(
-                          color: priorityColorFromValue(widget.priority),
-                          borderRadius:
-                              BorderRadius.circular(CustomSize.borderRadiusMd),
-                        ),
-                        child: Text(
-                          priorityNameFromValue(widget
-                              .priority), // Ubah nilai prioritas menjadi nama
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelMedium
-                              ?.apply(color: AppColors.textPrimary),
-                        ),
-                      ),
-                      const SizedBox(width: CustomSize.sm),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: CustomSize.xs, horizontal: CustomSize.sm),
-                        decoration: BoxDecoration(
-                          color: statusKerjaColorFromValue(widget.statusKerja),
-                          borderRadius:
-                              BorderRadius.circular(CustomSize.borderRadiusMd),
-                        ),
-                        child: Text(
-                          statusKerjaFromValue(widget.statusKerja),
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelMedium
-                              ?.apply(color: AppColors.textPrimary),
-                        ),
-                      ),
-                      const SizedBox(width: CustomSize.sm),
-                      InfoPopupWidget(
-                        customContent: () => Container(
-                          margin: const EdgeInsets.only(right: CustomSize.sm),
-                          decoration: BoxDecoration(
-                              color: AppColors.primaryExtraSoft,
-                              borderRadius: BorderRadius.circular(
-                                  CustomSize.borderRadiusMd),
-                              border: Border.all(
-                                  color: AppColors.secondarySoft, width: 1)),
-                          padding: const EdgeInsets.all(10),
-                          constraints: const BoxConstraints(
-                            maxWidth: 200, // Batasi lebar maksimum popup
-                          ),
-                          child: Column(
-                            mainAxisSize:
-                                MainAxisSize.min, // Ukuran menyesuaikan konten
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start, // Rata kiri
-                            children: <Widget>[
-                              Row(
-                                children: [
-                                  const Icon(Icons.edit,
-                                      color: AppColors.black),
-                                  const SizedBox(
-                                      width: 8), // Jarak antar ikon dan teks
-                                  Expanded(
-                                    child: Text(
-                                      'Edit postingan',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium,
-                                      overflow: TextOverflow
-                                          .ellipsis, // Potong teks jika terlalu panjang
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                  height: CustomSize.sm), // Jarak antar item
-                              Row(
-                                children: [
-                                  const Icon(Icons.delete_forever,
-                                      color: AppColors.black),
-                                  const SizedBox(
-                                      width: 8), // Jarak antar ikon dan teks
-                                  Expanded(
-                                    child: Text(
-                                      'Hapus postingan',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium,
-                                      overflow: TextOverflow
-                                          .ellipsis, // Potong teks jika terlalu panjang
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        arrowTheme: const InfoPopupArrowTheme(
-                          color: AppColors.secondarySoft,
-                          arrowDirection: ArrowDirection.up,
-                        ),
-                        dismissTriggerBehavior:
-                            PopupDismissTriggerBehavior.onTapArea,
-                        areaBackgroundColor:
-                            AppColors.secondarySoft.withOpacity(.1),
-                        indicatorOffset: Offset.zero,
-                        contentOffset: Offset.zero,
-                        child: const Icon(
-                          Icons.more_horiz,
-                          color: AppColors.secondarySoft,
-                        ),
+                      Text(
+                        widget.apk,
+                        style: Theme.of(context).textTheme.labelMedium,
                       ),
                     ],
                   ),
-                ),
-              ],
+                  Expanded(child: Container()),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: CustomSize.xs, horizontal: CustomSize.sm),
+                    decoration: BoxDecoration(
+                      color: priorityColorFromValue(widget.priority),
+                      borderRadius:
+                          BorderRadius.circular(CustomSize.borderRadiusMd),
+                    ),
+                    child: Text(
+                      priorityNameFromValue(
+                          widget.priority), // Ubah nilai prioritas menjadi nama
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelMedium
+                          ?.apply(color: AppColors.textPrimary),
+                    ),
+                  ),
+                  const SizedBox(width: CustomSize.sm),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: CustomSize.xs, horizontal: CustomSize.sm),
+                    decoration: BoxDecoration(
+                      color: statusKerjaColorFromValue(widget.statusKerja),
+                      borderRadius:
+                          BorderRadius.circular(CustomSize.borderRadiusMd),
+                    ),
+                    child: Text(
+                      statusKerjaFromValue(widget.statusKerja),
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelMedium
+                          ?.apply(color: AppColors.textPrimary),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            // child: ListTile(
-            //   onTap: widget.onTap ?? toggleExpansion,
-            //   title: widget.headContent,
-            //   trailing: widget.content == null
-            //       ? null
-            //       : Icon(
-            //           _isExpanded ? Icons.expand_less : Icons.expand_more,
-            //           color: AppColors.black,
-            //         ),
-            // ),
           ),
         ),
         SizeTransition(
@@ -310,55 +231,55 @@ class _ExpandableContainerState extends State<ExpandableContainer>
                     )),
                 Padding(
                   padding: const EdgeInsets.only(top: CustomSize.xs),
-                  child: CachedNetworkImage(
-                    imageUrl: widget.fotoUser,
-                    placeholder: (context, url) =>
-                        const CircularProgressIndicator(),
-                    errorWidget: (context, url, error) =>
-                        const Icon(Icons.error),
-                    fit: BoxFit.cover,
-                  ), //'https://i.pinimg.com/736x/c2/d0/61/c2d0613295adec2fe01b1a29ee4930df.jpg'
+                  child: ImageGridWidget(
+                      imageUrls: widget
+                          .fotoUser), //'https://i.pinimg.com/736x/c2/d0/61/c2d0613295adec2fe01b1a29ee4930df.jpg'
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(CustomSize.xs),
-                  child: Row(
-                    children: [
-                      Expanded(
-                          flex: 2,
-                          child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.zero),
-                              onPressed: () => print(
-                                  'INI BTN BATAL ADMIN KETIKA NOLAK POSTINGAN USER'),
-                              child: Text(
-                                'Denied',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelMedium
-                                    ?.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500),
-                              ))),
-                      const SizedBox(width: CustomSize.sm),
-                      Expanded(
-                          flex: 1,
-                          child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.zero),
-                              onPressed: () => print(
-                                  'INI BTN TERIMA ADMIN KETIKA TERIMA POSTINGAN USER'),
-                              child: Text(
-                                'Accept',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelMedium
-                                    ?.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500),
-                              ))),
-                    ],
-                  ),
-                )
+                if (typeUser == 'admin' && widget.statusKerja != '2')
+                  Padding(
+                    padding: const EdgeInsets.all(CustomSize.xs),
+                    child: Row(
+                      children: [
+                        Expanded(
+                            flex: 2,
+                            child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    padding: EdgeInsets.zero),
+                                onPressed: widget.onTapDenied,
+                                // onPressed: () => print(
+                                //     'INI BTN BATAL ADMIN KETIKA NOLAK POSTINGAN USER'),
+                                child: Text(
+                                  'Denied',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelMedium
+                                      ?.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500),
+                                ))),
+                        const SizedBox(width: CustomSize.sm),
+                        Expanded(
+                            flex: 1,
+                            child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    padding: EdgeInsets.zero),
+                                onPressed: widget.onTapAccept,
+                                // onPressed: () => _controller.changeStatusBug(
+                                //     hashId: widget.id,
+                                //     statusKerja:
+                                //         _getNextStatus(widget.statusKerja)),
+                                child: Text(
+                                  'Accept',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelMedium
+                                      ?.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500),
+                                ))),
+                      ],
+                    ),
+                  )
               ],
             ),
           ),

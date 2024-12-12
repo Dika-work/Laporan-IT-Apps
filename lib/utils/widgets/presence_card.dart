@@ -6,8 +6,17 @@ import 'package:laporan/utils/theme/app_colors.dart';
 
 class PresenceCard extends StatelessWidget {
   final String divisi;
+  final String newProblemCount;
+  final String prosessProblem;
+  final String doneProblem;
   final void Function()? onTapLogout;
-  const PresenceCard({super.key, required this.divisi, this.onTapLogout});
+  const PresenceCard(
+      {super.key,
+      required this.divisi,
+      this.onTapLogout,
+      required this.newProblemCount,
+      required this.prosessProblem,
+      required this.doneProblem});
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +81,7 @@ class PresenceCard extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (context) =>
                               const AllProblem(initialCategory: '0'),
+                          // const AllProblem(),
                         ),
                       );
                     },
@@ -85,9 +95,9 @@ class PresenceCard extends StatelessWidget {
                               .labelMedium
                               ?.apply(color: Colors.white),
                         ),
-                        const Text(
-                          '1',
-                          style: TextStyle(
+                        Text(
+                          newProblemCount,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
@@ -109,9 +119,9 @@ class PresenceCard extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              const AllProblem(initialCategory: '1'),
-                        ),
+                            builder: (context) =>
+                                const AllProblem(initialCategory: '1')),
+                        // const AllProblem()),
                       );
                     },
                     child: Column(
@@ -124,9 +134,9 @@ class PresenceCard extends StatelessWidget {
                               .labelMedium
                               ?.apply(color: Colors.white),
                         ),
-                        const Text(
-                          '2',
-                          style: TextStyle(
+                        Text(
+                          prosessProblem,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
@@ -148,9 +158,9 @@ class PresenceCard extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              const AllProblem(initialCategory: '2'),
-                        ),
+                            builder: (context) =>
+                                const AllProblem(initialCategory: '2')),
+                        // const AllProblem()),
                       );
                     },
                     child: Column(
@@ -163,9 +173,9 @@ class PresenceCard extends StatelessWidget {
                               .labelMedium
                               ?.apply(color: Colors.white),
                         ),
-                        const Text(
-                          '3',
-                          style: TextStyle(
+                        Text(
+                          doneProblem,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,

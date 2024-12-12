@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -10,7 +13,15 @@ class LaporanPekerjaanController extends GetxController {
   final localStorage = GetStorage();
   final formKey = GlobalKey<FormState>();
   final Rxn<ApkCategoriesModel> selectedCategory = Rxn<ApkCategoriesModel>();
-  final status = 'Status pekerjaan'.obs;
+
+  // ini model untuk bagian edit
+  RxList<ApkCategoriesModel> apkModel = <ApkCategoriesModel>[].obs;
+  RxString selectedApk = ''.obs;
+  RxString selectedJenisKendaraan = ''.obs;
+  RxString selectedApkId = ''.obs;
+// akhir untuk bagian edit
+
+  RxString status = 'Status pekerjaan'.obs;
   final Map<String, int> listStatusPekerjaan = {
     'Status pekerjaan': 0,
     'Selesai': 1,
@@ -70,5 +81,131 @@ class LaporanPekerjaanController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  updatePekerjaan({
+    required String hashId,
+    required String apk,
+    required String problem,
+    required String pekerjaan,
+    required String tgl,
+    required String status,
+  }) async {
+    isLoading.value = true;
+
+    try {
+      final data = {
+        'hash_id': hashId,
+        'apk': apk,
+        'problem': problem,
+        'pekerjaan': pekerjaan,
+        'tgl': tgl,
+        'status': status,
+      };
+
+      // Debugging data yang dikirim
+      print('Data yang dikirim: $data');
+
+      final response = await _dio.put(
+        '/update-pekerjaan',
+        data: data, // Kirim data sebagai JSON
+      );
+
+      // Debugging response server
+      print('Response Status: ${response.statusCode}');
+      print('Response Data: ${response.data}');
+
+      if (response.statusCode == 200) {
+        Get.back(result: true);
+        SnackbarLoader.successSnackBar(
+          title: 'Sukses',
+          message: 'Laporan berhasil diperbarui.',
+        );
+      } else {
+        SnackbarLoader.errorSnackBar(
+          title: 'Gagal',
+          message: response.data['message'] ?? 'Terjadi kesalahan.',
+        );
+      }
+    } catch (e) {
+      SnackbarLoader.errorSnackBar(
+        title: 'Error',
+        message: 'Terjadi kesalahan: $e',
+      );
+      print('INI ERROR SAAT EDIT LAPORAN: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // List<ApkCategoriesModel> get filteredapkModel {
+  //   if (selectedJenisKendaraan.value.isEmpty) {
+  //     return apkModel; // Return semua kendaraan jika filter kosong
+  //   }
+
+  //   return apkModel
+  //       .where(
+  //         (kendaraan) => kendaraan.title
+  //             .toLowerCase()
+  //             .contains(selectedJenisKendaraan.value.toLowerCase()),
+  //       )
+  //       .toList(); // Return daftar terfilter
+  // }
+
+  // void updateselectedApk(String value) {
+  //   final kendaraan = filteredapkModel.firstWhere(
+  //     (kendaraan) => kendaraan.title == value,
+  //     orElse: () => ApkCategoriesModel(
+  //       idApk: '',
+  //       title: '',
+  //       subtitle: '',
+  //     ),
+  //   );
+
+  //   selectedApk.value = kendaraan.title;
+  //   selectedApkId.value = kendaraan.idApk;
+  // }
+
+  // void setSelectedJenisKendaraan(String jenis) {
+  //   selectedJenisKendaraan.value = jenis;
+  //   updateselectedApk(selectedApk.value); // Menjaga konsistensi
+  // }
+
+  // void resetselectedApk() {
+  //   selectedApk.value = '';
+  //   selectedApkId.value = '';
+  // }
+
+  // getApkCategories() async {
+  //   isLoading.value = true;
+
+  //   try {
+  //     final response = await _dio.get('/getCategoryApk');
+
+  //     if (response.statusCode == 200) {
+  //       final Map<String, dynamic> jsonResponse = response.data;
+  //       final List<dynamic> data = jsonResponse['data'];
+  //       apkModel.value =
+  //           data.map((e) => ApkCategoriesModel.fromJson(e)).toList();
+  //     }
+  //   } on diomultipart.DioException catch (e) {
+  //     if (e.response?.statusCode == 429) {
+  //       SnackbarLoader.warningSnackBar(
+  //           title: 'Limit Exceeded',
+  //           message: 'Terlalu banyak permintaan. Coba lagi nanti');
+  //     } else {
+  //       SnackbarLoader.warningSnackBar(
+  //           title: 'Error',
+  //           message: e.response?.data['message'] ?? 'Terjadi kesalahan');
+  //     }
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
+
+  String generateHash(String id) {
+    var bytes = utf8.encode(id); // Konversi ID ke bytes
+    var digest = sha256.convert(bytes); // Hash dengan SHA-256
+    return digest.toString(); // Ubah ke string
   }
 }
