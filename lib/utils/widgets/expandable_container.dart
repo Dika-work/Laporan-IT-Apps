@@ -12,7 +12,6 @@ class ExpandableContainer extends StatefulWidget {
     super.key,
     required this.onTapAccept,
     required this.onTapDenied,
-    required this.id,
     required this.nama,
     required this.fotoProfile,
     required this.divisi,
@@ -27,7 +26,6 @@ class ExpandableContainer extends StatefulWidget {
 
   final void Function()? onTapAccept;
   final void Function()? onTapDenied;
-  final String id;
   final String nama;
   final String fotoProfile;
   final String divisi;

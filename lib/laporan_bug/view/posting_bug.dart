@@ -11,6 +11,9 @@ import 'package:laporan/models/apk_categories_model.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
 import 'package:laporan/utils/routes/app_pages.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
+import 'package:laporan/utils/widgets/dialogs.dart';
+
+import '../../utils/widgets/image widget/image_grid_file.dart';
 
 class PostingBug extends GetView<PostingBugController> {
   const PostingBug({super.key});
@@ -63,13 +66,46 @@ class PostingBug extends GetView<PostingBugController> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back)),
+          onPressed: () async {
+            if (controller.lampiranC.text.isEmpty &&
+                controller.selectedImages.isEmpty &&
+                controller.selectedCategory.value == null) {
+              Get.back();
+            } else {
+              final isConfirmed = await CustomDialogs.defaultDialog(
+                context: Get.overlayContext!,
+                contentWidget: const Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                        'Perubahan belum disimpan. Apakah Anda ingin melanjutkan?'),
+                  ],
+                ),
+                onConfirm: () {
+                  controller.resetEditState();
+                  Navigator.of(Get.overlayContext!).pop(true);
+                  Navigator.of(Get.overlayContext!).pop(true);
+                },
+                onCancel: () {
+                  Navigator.of(Get.overlayContext!).pop(false);
+                },
+                confirmText: 'Kembali',
+              );
+
+              if (isConfirmed == true) {
+                // Kembali ke halaman sebelumnya setelah reset
+                Get.back();
+              }
+            }
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
         title: Text(
           'Buat postingan',
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(fontWeight: FontWeight.w400, color: Colors.black),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w400,
+                color: Colors.black,
+              ),
         ),
         actions: [
           GestureDetector(
@@ -131,46 +167,82 @@ class PostingBug extends GetView<PostingBugController> {
           physics: controller.selectedImages.isEmpty
               ? const NeverScrollableScrollPhysics()
               : const BouncingScrollPhysics(),
-          child: Form(
-            key: controller.formKey,
-            child: Container(
-              width: Get.width,
-              margin: const EdgeInsets.only(top: 10.0),
-              color: Colors.white,
-              child: Column(
-                children: [
-                  const SizedBox(height: CustomSize.xs),
-                  _buildUserAndCategorySection(
-                      context,
-                      username,
-                      fotoProfile,
-                      divisi,
-                      priorityColorFromValue(priorityLevel.value),
-                      priorityIconFromValue(priorityLevel.value),
-                      priorityNameFromValue(priorityLevel.value), () async {
-                    final result = await Get.toNamed(
-                      Routes.PRIORITY,
-                      arguments: priorityLevel.value,
-                    );
-                    if (result != null) {
-                      priorityLevel.value = result as int;
-                    }
-                  }, () async {
-                    final result = await Get.toNamed(Routes.APK_CATEGORY,
-                        arguments: selectedCategory.value?.idApk);
-                    if (result != null && result is ApkCategoriesModel) {
-                      selectedCategory.value = result;
-                    }
+          child: PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) async {
+              if (didPop) return;
+
+              if (controller.lampiranC.text.isEmpty &&
+                  controller.selectedImages.isEmpty &&
+                  controller.selectedCategory.value == null) {
+                Get.back();
+              } else {
+                final isConfirmed = await CustomDialogs.defaultDialog(
+                  context: Get.overlayContext!,
+                  contentWidget: const Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                          'Perubahan belum disimpan. Apakah Anda ingin melanjutkan?'),
+                    ],
+                  ),
+                  onConfirm: () {
+                    controller.resetEditState();
+                    Navigator.of(Get.overlayContext!).pop(true);
+                    Navigator.of(Get.overlayContext!).pop(true);
                   },
-                      selectedCategory.value != null
-                          ? AppColors.accent.withOpacity(.6)
-                          : AppColors.accent.withOpacity(.4),
-                      selectedCategory.value?.title ?? 'Pilih Kategori'),
-                  controller.selectedImages.isEmpty
-                      ? _buildTextFormField(
-                          context, 'Apa yang mau di laporkan?')
-                      : _buildImageAndTextField(context)
-                ],
+                  onCancel: () {
+                    Navigator.of(Get.overlayContext!).pop(false);
+                  },
+                  confirmText: 'Kembali',
+                );
+
+                if (isConfirmed == true) {
+                  Get.back();
+                }
+              }
+            },
+            child: Form(
+              key: controller.formKey,
+              child: Container(
+                width: Get.width,
+                margin: const EdgeInsets.only(top: 10.0),
+                color: Colors.white,
+                child: Column(
+                  children: [
+                    const SizedBox(height: CustomSize.xs),
+                    _buildUserAndCategorySection(
+                        context,
+                        username,
+                        fotoProfile,
+                        divisi,
+                        priorityColorFromValue(priorityLevel.value),
+                        priorityIconFromValue(priorityLevel.value),
+                        priorityNameFromValue(priorityLevel.value), () async {
+                      final result = await Get.toNamed(
+                        Routes.PRIORITY,
+                        arguments: priorityLevel.value,
+                      );
+                      if (result != null) {
+                        priorityLevel.value = result as int;
+                      }
+                    }, () async {
+                      final result = await Get.toNamed(Routes.APK_CATEGORY,
+                          arguments: selectedCategory.value?.idApk);
+                      if (result != null && result is ApkCategoriesModel) {
+                        selectedCategory.value = result;
+                      }
+                    },
+                        selectedCategory.value != null
+                            ? AppColors.accent.withOpacity(.6)
+                            : AppColors.accent.withOpacity(.4),
+                        selectedCategory.value?.title ?? 'Pilih Kategori'),
+                    controller.selectedImages.isEmpty
+                        ? _buildTextFormField(
+                            context, 'Apa yang mau di laporkan?')
+                        : _buildImageAndTextField(context)
+                  ],
+                ),
               ),
             ),
           ),
@@ -416,37 +488,9 @@ class PostingBug extends GetView<PostingBugController> {
             ),
           ),
         ),
-        Obx(() {
-          return GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 8.0,
-              mainAxisSpacing: 8.0,
-            ),
-            itemCount: controller.selectedImages.length,
-            itemBuilder: (context, index) {
-              final image = controller.selectedImages[index];
-              return Stack(
-                children: [
-                  Image.file(image),
-                  Positioned(
-                    top: 5,
-                    right: 5,
-                    child: GestureDetector(
-                      onTap: () => controller.deleteImage(index),
-                      child: const Icon(
-                        Icons.close,
-                        color: Colors.red,
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            },
-          );
-        })
+        ImageGridFileWidget(
+          imageFiles: controller.selectedImages,
+        ),
       ],
     );
   }
@@ -464,7 +508,8 @@ class PostingBug extends GetView<PostingBugController> {
           items: [
             BottomNavigationBarItem(
               icon: GestureDetector(
-                onTap: () => controller.pickImages(ImageSource.gallery),
+                onTap: () async =>
+                    await controller.pickImages(ImageSource.gallery),
                 child: const Icon(
                   Ionicons.image,
                   size: 25,
@@ -475,7 +520,8 @@ class PostingBug extends GetView<PostingBugController> {
             ),
             BottomNavigationBarItem(
               icon: GestureDetector(
-                onTap: () => controller.pickImages(ImageSource.camera),
+                onTap: () async =>
+                    await controller.pickImages(ImageSource.camera),
                 child: const Icon(
                   Ionicons.camera,
                   size: 25,

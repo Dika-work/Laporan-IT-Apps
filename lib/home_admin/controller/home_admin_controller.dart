@@ -228,6 +228,7 @@ class HomeAdminController extends GetxController {
 
   changeStatusBug({
     required String hashId,
+    required String tglAcc,
     required String statusKerja,
   }) async {
     isLoading.value = true;
@@ -235,6 +236,7 @@ class HomeAdminController extends GetxController {
     try {
       final data = {
         'hash_id': hashId,
+        'tgl_acc': tglAcc,
         'status_kerja': statusKerja,
       };
 

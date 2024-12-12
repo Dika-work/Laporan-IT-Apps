@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -33,6 +35,38 @@ class FullImageGallery extends StatelessWidget {
                   const Center(child: Icon(Icons.error, color: Colors.white)),
               fit: BoxFit.contain,
             ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class FullImageFileGallery extends StatelessWidget {
+  final List<File> imageUrls;
+  final int initialIndex;
+
+  const FullImageFileGallery({
+    super.key,
+    required this.imageUrls,
+    required this.initialIndex,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text('Gallery', style: TextStyle(color: Colors.white)),
+      ),
+      body: PageView.builder(
+        itemCount: imageUrls.length,
+        controller: PageController(initialPage: initialIndex),
+        itemBuilder: (context, index) {
+          return InteractiveViewer(
+            child: Image.file(imageUrls[index], fit: BoxFit.cover),
           );
         },
       ),

@@ -36,18 +36,35 @@ class PostingBugController extends GetxController {
 
   pickImages(ImageSource source) async {
     final ImagePicker picker = ImagePicker();
-    final List<XFile> images = await picker.pickMultiImage();
 
-    if (images.isNotEmpty) {
-      selectedImages.value = images.map((image) => File(image.path)).toList();
+    // Jika source adalah ImageSource.camera, pilih satu gambar, bukan multiple image
+    if (source == ImageSource.camera) {
+      final XFile? image = await picker.pickImage(source: source);
+      if (image != null) {
+        selectedImages.add(File(image.path));
+      } else {
+        Get.snackbar(
+          'Error',
+          'Tidak ada gambar yang diambil.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
     } else {
-      Get.snackbar(
-        'Error',
-        'Tidak ada gambar yang dipilih.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      // Jika sumber adalah galeri (multi-image picker)
+      final List<XFile> images = await picker.pickMultiImage();
+      if (images.isNotEmpty) {
+        selectedImages.value = images.map((image) => File(image.path)).toList();
+      } else {
+        Get.snackbar(
+          'Error',
+          'Tidak ada gambar yang dipilih.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
     }
   }
 

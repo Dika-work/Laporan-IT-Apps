@@ -186,7 +186,7 @@ class HomeUser extends GetView<HomeUserController> {
             }
 
             if (controller.problemList.isEmpty) {
-              return const Center(child: Text('Tidak ada laporan.'));
+              return const SizedBox.shrink();
             }
 
             return ListView.builder(

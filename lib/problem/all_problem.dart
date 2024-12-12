@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
 import 'package:laporan/utils/widgets/expandable_container.dart';
@@ -82,10 +83,13 @@ class _AllProblemState extends State<AllProblem> {
                     }
 
                     final problem = filteredProblems[index];
+                    final now = DateTime.now();
+                    final String formattedDate =
+                        DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+
                     return Padding(
                       padding: const EdgeInsets.only(bottom: CustomSize.sm),
                       child: ExpandableContainer(
-                        id: _controller.generateHash(problem.id),
                         nama: problem.username,
                         fotoProfile: problem.fotoProfile,
                         divisi: problem.divisi,
@@ -98,9 +102,11 @@ class _AllProblemState extends State<AllProblem> {
                         bgTransitionColor: AppColors.white,
                         onTapAccept: () => _controller.changeStatusBug(
                             hashId: _controller.generateHash(problem.id),
+                            tglAcc: formattedDate,
                             statusKerja: _getNextStatus(problem.statusKerja)),
                         onTapDenied: () => _controller.changeStatusBug(
                             hashId: _controller.generateHash(problem.id),
+                            tglAcc: formattedDate,
                             statusKerja: _getPrepStatus(problem.statusKerja)),
                       ),
                     );
