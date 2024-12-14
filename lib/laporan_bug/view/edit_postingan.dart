@@ -12,7 +12,7 @@ import 'package:laporan/utils/routes/app_pages.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
 import 'package:laporan/utils/widgets/dialogs.dart';
 
-import '../../utils/widgets/image widget/image_grid.dart';
+import '../../utils/widgets/image widget/edit postingan grid/edit_image_grid.dart';
 
 class EditPostingan extends GetView<PostingBugController> {
   const EditPostingan({super.key});
@@ -26,7 +26,7 @@ class EditPostingan extends GetView<PostingBugController> {
 
     final arguments = Get.arguments;
     final hashId = Get.arguments['hash_id'];
-    final List<String> images = List<String>.from(arguments['images']);
+    // final List<String> images = List<String>.from(arguments['images']);
     controller.lampiranC.text = arguments['lampiran'] ?? '';
     controller.selectedCategory.value =
         ApkCategoriesModel.fromString(arguments['apk'] ?? '');
@@ -99,7 +99,7 @@ class EditPostingan extends GetView<PostingBugController> {
           icon: const Icon(Icons.arrow_back),
         ),
         title: Text(
-          'Edit Postingan',
+          'Edit postingan',
           style: Theme.of(context)
               .textTheme
               .titleMedium
@@ -119,25 +119,12 @@ class EditPostingan extends GetView<PostingBugController> {
                 return;
               }
 
-              // Ambil hash_id dari arguments
-              if (hashId == null) {
-                Get.snackbar(
-                  'Error',
-                  'Hash ID tidak ditemukan.',
-                  snackPosition: SnackPosition.BOTTOM,
-                  backgroundColor: Colors.red,
-                  colorText: Colors.white,
-                );
-                return;
-              }
-
               // Panggil controller untuk update laporan
               await controller.updateLaporan(
                   hashId: hashId,
                   lampiran: controller.lampiranC.text,
                   apk: controller.selectedCategory.value!,
-                  priority: controller.priorityLevel.value,
-                  selectedImages: controller.selectedImages);
+                  priority: controller.priorityLevel.value);
             },
             child: Container(
               padding: const EdgeInsets.all(CustomSize.xs),
@@ -168,7 +155,7 @@ class EditPostingan extends GetView<PostingBugController> {
         }
 
         return SingleChildScrollView(
-          physics: controller.selectedImages.isEmpty
+          physics: controller.newImages.isEmpty
               ? const NeverScrollableScrollPhysics()
               : const BouncingScrollPhysics(),
           child: PopScope(
@@ -205,11 +192,11 @@ class EditPostingan extends GetView<PostingBugController> {
               key: controller.formKey,
               child: Container(
                 width: Get.width,
+                // height: controller.newImages.isEmpty ? Get.height : 0,
                 margin: const EdgeInsets.only(top: 10.0),
                 color: Colors.white,
                 child: Column(
                   children: [
-                    Text(hashId),
                     const SizedBox(height: CustomSize.xs),
                     _buildUserAndCategorySection(
                         context,
@@ -239,10 +226,7 @@ class EditPostingan extends GetView<PostingBugController> {
                             : AppColors.accent.withOpacity(.4),
                         controller.selectedCategory.value?.title ??
                             'Pilih Kategori'),
-                    controller.selectedImages.isEmpty
-                        ? _buildTextFormField(
-                            context, 'Apa yang mau di laporkan?')
-                        : _buildImageAndTextField(context, images)
+                    _buildImageAndTextField(context),
                   ],
                 ),
               ),
@@ -424,45 +408,12 @@ class EditPostingan extends GetView<PostingBugController> {
         ]));
   }
 
-  Widget _buildTextFormField(BuildContext context, String hintText) {
-    return Container(
-      width: Get.width,
-      height: Get.height,
-      padding: const EdgeInsets.only(left: 16.0),
-      child: TextFormField(
-        controller: controller.lampiranC,
-        keyboardType: TextInputType.text,
-        maxLines: 10,
-        minLines: 1,
-        style: Theme.of(context).textTheme.bodyMedium,
-        onChanged: (value) {
-          controller.textVisible.value = value.isEmpty;
-        },
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Kalimat lampiran tidak boleh kosong';
-          }
-          return null;
-        },
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          disabledBorder: InputBorder.none,
-          contentPadding: EdgeInsets.zero,
-          hintText: hintText,
-          hintStyle: Theme.of(context).textTheme.bodyMedium,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImageAndTextField(BuildContext context, List<String> imageUrls) {
+  Widget _buildImageAndTextField(BuildContext context) {
     return Column(
       children: [
         Container(
           width: Get.width,
-          padding: const EdgeInsets.only(left: 16.0),
+          padding: const EdgeInsets.only(left: 16.0, top: 8.0),
           child: TextFormField(
             controller: controller.lampiranC,
             keyboardType: TextInputType.text,
@@ -489,48 +440,13 @@ class EditPostingan extends GetView<PostingBugController> {
             ),
           ),
         ),
-        ImageGridWidget(imageUrls: imageUrls)
-        // GridView.builder(
-        //   shrinkWrap: true,
-        //   physics: const NeverScrollableScrollPhysics(),
-        //   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        //     crossAxisCount: 3, // Menampilkan 3 gambar per baris
-        //     crossAxisSpacing: 10,
-        //     mainAxisSpacing: 10,
-        //   ),
-        //   itemCount: imageUrls.length,
-        //   itemBuilder: (context, index) {
-        //     final imageUrl = imageUrls[index];
-        //     return Stack(
-        //       children: [
-        //         CachedNetworkImage(
-        //           imageUrl: imageUrl,
-        //           placeholder: (context, url) =>
-        //               const CircularProgressIndicator(),
-        //           errorWidget: (context, url, error) => const Icon(Icons.error),
-        //           fit: BoxFit.cover,
-        //         ),
-        //         Positioned(
-        //           right: 0,
-        //           top: 10,
-        //           child: IconButton(
-        //             onPressed: () {
-        //               Get.snackbar(
-        //                 'Info',
-        //                 'Anda tidak dapat menghapus gambar yang sudah ada di laporan ini.',
-        //                 snackPosition: SnackPosition.BOTTOM,
-        //               );
-        //             },
-        //             icon: const Icon(
-        //               Ionicons.lock_closed_outline,
-        //               color: AppColors.error,
-        //             ),
-        //           ),
-        //         ),
-        //       ],
-        //     );
-        //   },
-        // ),
+
+        // Tampilkan gambar lama dan baru
+        EditImageGridWidget(
+          onDeleteImage: (index, isOldImage) {
+            controller.deleteImage(index, isOldImage: isOldImage);
+          },
+        ),
       ],
     );
   }

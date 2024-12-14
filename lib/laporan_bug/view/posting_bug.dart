@@ -69,7 +69,7 @@ class PostingBug extends GetView<PostingBugController> {
         leading: IconButton(
           onPressed: () async {
             if (controller.lampiranC.text.isEmpty &&
-                controller.selectedImages.isEmpty &&
+                controller.newImages.isEmpty &&
                 controller.selectedCategory.value == null) {
               Get.back();
             } else {
@@ -125,7 +125,7 @@ class PostingBug extends GetView<PostingBugController> {
                 return;
               }
 
-              // if (controller.selectedImages.isEmpty) {
+              // if (controller.newImages.isEmpty) {
               //   Get.snackbar(
               //     'Error',
               //     'Silakan pilih gambar terlebih dahulu.',
@@ -168,7 +168,7 @@ class PostingBug extends GetView<PostingBugController> {
       ),
       body: Obx(() {
         return SingleChildScrollView(
-          physics: controller.selectedImages.isEmpty
+          physics: controller.newImages.isEmpty
               ? const NeverScrollableScrollPhysics()
               : const BouncingScrollPhysics(),
           child: PopScope(
@@ -177,7 +177,7 @@ class PostingBug extends GetView<PostingBugController> {
               if (didPop) return;
 
               if (controller.lampiranC.text.isEmpty &&
-                  controller.selectedImages.isEmpty &&
+                  controller.newImages.isEmpty &&
                   controller.selectedCategory.value == null) {
                 Get.back();
               } else {
@@ -239,7 +239,7 @@ class PostingBug extends GetView<PostingBugController> {
                           ? AppColors.accent.withOpacity(.6)
                           : AppColors.accent.withOpacity(.4),
                       selectedCategory.value?.title ?? 'Pilih Kategori'),
-                  controller.selectedImages.isEmpty
+                  controller.newImages.isEmpty
                       ? _buildTextFormField(
                           context, 'Apa yang mau di laporkan?')
                       : _buildImageAndTextField(context)
@@ -490,7 +490,7 @@ class PostingBug extends GetView<PostingBugController> {
           ),
         ),
         ImageGridFileWidget(
-          imageFiles: controller.selectedImages,
+          imageFiles: controller.newImages,
         ),
       ],
     );
