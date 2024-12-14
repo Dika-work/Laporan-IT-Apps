@@ -129,24 +129,25 @@ class PresenceTile extends StatelessWidget {
                   ],
                 ),
                 Expanded(child: Container()),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: CustomSize.xs, horizontal: CustomSize.sm),
-                  decoration: BoxDecoration(
-                    color: priorityColorFromValue(priority),
-                    borderRadius:
-                        BorderRadius.circular(CustomSize.borderRadiusMd),
+                if (statusKerja != '2')
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: CustomSize.xs, horizontal: CustomSize.sm),
+                    decoration: BoxDecoration(
+                      color: priorityColorFromValue(priority),
+                      borderRadius:
+                          BorderRadius.circular(CustomSize.borderRadiusMd),
+                    ),
+                    child: Text(
+                      priorityNameFromValue(
+                          priority), // Ubah nilai prioritas menjadi nama
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelMedium
+                          ?.apply(color: AppColors.textPrimary),
+                    ),
                   ),
-                  child: Text(
-                    priorityNameFromValue(
-                        priority), // Ubah nilai prioritas menjadi nama
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelMedium
-                        ?.apply(color: AppColors.textPrimary),
-                  ),
-                ),
-                const SizedBox(width: CustomSize.sm),
+                if (statusKerja != '2') const SizedBox(width: CustomSize.sm),
                 Container(
                   padding: const EdgeInsets.symmetric(
                       vertical: CustomSize.xs, horizontal: CustomSize.sm),
@@ -262,7 +263,10 @@ class PresenceTile extends StatelessWidget {
               )),
           Padding(
             padding: const EdgeInsets.only(top: CustomSize.sm),
-            child: ImageGridWidget(imageUrls: laporanFoto),
+            child: ImageGridWidget(
+              imageUrls: laporanFoto,
+              username: nama,
+            ),
           )
         ],
       ),

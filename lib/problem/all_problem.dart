@@ -41,74 +41,72 @@ class _AllProblemState extends State<AllProblem> {
         }
 
         return Column(
-          // shrinkWrap: true,
-          // physics: const ClampingScrollPhysics(),
-          // padding: EdgeInsets.zero,
           children: [
             // Filter Kategori
             _buildCategoryFilter(context),
             // List Problem
-            ValueListenableBuilder<String>(
-              valueListenable: _selectedCategory,
-              builder: (context, selectedCategory, _) {
-                // Ambil filtered problems berdasarkan kategori yang dipilih
-                final filteredProblems = _controller.problemList
-                    .where((problem) => problem.statusKerja == selectedCategory)
-                    .toList();
+            Expanded(
+              child: ValueListenableBuilder<String>(
+                valueListenable: _selectedCategory,
+                builder: (context, selectedCategory, _) {
+                  // Ambil filtered problems berdasarkan kategori yang dipilih
+                  final filteredProblems = _controller.problemList
+                      .where(
+                          (problem) => problem.statusKerja == selectedCategory)
+                      .toList();
 
-                if (filteredProblems.isEmpty) {
-                  return Expanded(
-                    child: Image.asset('assets/images/lps.png',
-                        width: 50, height: 50),
-                  );
-                }
-
-                // Gunakan ListView.builder untuk menampilkan masalah
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: const EdgeInsets.only(top: CustomSize.sm),
-                  itemCount: filteredProblems.length +
-                      (_controller.isLoadingMore.value
-                          ? 1
-                          : 0), // Tambahkan item loading spinner
-                  itemBuilder: (context, index) {
-                    if (index == filteredProblems.length) {
-                      // Menampilkan indikator loading saat memuat data tambahan
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    final problem = filteredProblems[index];
-                    final now = DateTime.now();
-                    final String formattedDate =
-                        DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
-
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: CustomSize.sm),
-                      child: ExpandableContainer(
-                        nama: problem.username,
-                        fotoProfile: problem.fotoProfile,
-                        divisi: problem.divisi,
-                        apk: problem.apk,
-                        deskripsi: problem.lampiran,
-                        tglDiproses: problem.tglDiproses,
-                        priority: problem.priority,
-                        statusKerja: problem.statusKerja,
-                        fotoUser: problem.fotoUser,
-                        bgTransitionColor: AppColors.white,
-                        onTapAccept: () => _controller.changeStatusBug(
-                            hashId: _controller.generateHash(problem.id),
-                            tglAcc: formattedDate,
-                            statusKerja: _getNextStatus(problem.statusKerja)),
-                        onTapDenied: () => _controller.changeStatusBug(
-                            hashId: _controller.generateHash(problem.id),
-                            tglAcc: formattedDate,
-                            statusKerja: _getPrepStatus(problem.statusKerja)),
-                      ),
+                  if (filteredProblems.isEmpty) {
+                    return Expanded(
+                      child: Image.asset('assets/images/lps.png',
+                          width: 50, height: 50),
                     );
-                  },
-                );
-              },
+                  }
+
+                  // Gunakan ListView.builder untuk menampilkan masalah
+                  return ListView.builder(
+                    padding: const EdgeInsets.only(top: CustomSize.sm),
+                    itemCount: filteredProblems.length +
+                        (_controller.isLoadingMore.value
+                            ? 1
+                            : 0), // Tambahkan item loading spinner
+                    itemBuilder: (context, index) {
+                      if (index == filteredProblems.length) {
+                        // Menampilkan indikator loading saat memuat data tambahan
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      final problem = filteredProblems[index];
+                      final now = DateTime.now();
+                      final String formattedDate =
+                          DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: CustomSize.sm),
+                        child: ExpandableContainer(
+                          nama: problem.username,
+                          fotoProfile: problem.fotoProfile,
+                          divisi: problem.divisi,
+                          apk: problem.apk,
+                          deskripsi: problem.lampiran,
+                          tglDiproses: problem.tglDiproses,
+                          priority: problem.priority,
+                          statusKerja: problem.statusKerja,
+                          fotoUser: problem.fotoUser,
+                          bgTransitionColor: AppColors.white,
+                          onTapAccept: () => _controller.changeStatusBug(
+                              hashId: _controller.generateHash(problem.id),
+                              tglAcc: formattedDate,
+                              statusKerja: _getNextStatus(problem.statusKerja)),
+                          onTapDenied: () => _controller.changeStatusBug(
+                              hashId: _controller.generateHash(problem.id),
+                              tglAcc: formattedDate,
+                              statusKerja: _getPrepStatus(problem.statusKerja)),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ],
         );

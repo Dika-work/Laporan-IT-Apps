@@ -4,11 +4,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 class FullImageGallery extends StatelessWidget {
   final List<String> imageUrls;
   final int initialIndex;
+  final String username;
 
   const FullImageGallery({
     super.key,
     required this.imageUrls,
     required this.initialIndex,
+    required this.username,
   });
 
   @override
@@ -18,7 +20,11 @@ class FullImageGallery extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Gallery', style: TextStyle(color: Colors.white)),
+        title: Text(username.toUpperCase(),
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge
+                ?.apply(color: Colors.white)),
       ),
       body: PageView.builder(
         itemCount: imageUrls.length,

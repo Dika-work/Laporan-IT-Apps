@@ -14,7 +14,7 @@ import 'package:laporan/utils/routes/app_pages.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
 import 'package:laporan/utils/widgets/dialogs.dart';
 
-import '../../utils/widgets/image widget/image_grid_file.dart';
+import '../../utils/widgets/image widget/posting grid/image_grid_file.dart';
 
 class PostingBug extends GetView<PostingBugController> {
   const PostingBug({super.key});

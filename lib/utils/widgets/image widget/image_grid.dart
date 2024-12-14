@@ -5,10 +5,12 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class ImageGridWidget extends StatelessWidget {
   final List<String> imageUrls;
+  final String username;
 
   const ImageGridWidget({
     super.key,
     required this.imageUrls,
+    required this.username,
   });
 
   @override
@@ -39,6 +41,7 @@ class ImageGridWidget extends StatelessWidget {
                           builder: (context) => FullImageGallery(
                             imageUrls: imageUrls,
                             initialIndex: index,
+                            username: username,
                           ),
                         ),
                       );
@@ -78,6 +81,7 @@ class ImageGridWidget extends StatelessWidget {
                         builder: (context) => FullImageGallery(
                           imageUrls: imageUrls,
                           initialIndex: index,
+                          username: username,
                         ),
                       ),
                     );

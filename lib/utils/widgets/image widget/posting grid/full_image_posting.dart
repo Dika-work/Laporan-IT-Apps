@@ -1,25 +1,21 @@
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
 
-class FullImageEdit extends StatefulWidget {
-  final List<Map<String, dynamic>> images; // Semua gambar
-  final void Function(int index, bool isOldImage) onDeleteImage;
+class FullImagePosting extends StatefulWidget {
+  final List<File> images;
+  final void Function(int index) onDeleteImage;
 
-  const FullImageEdit({
-    super.key,
-    required this.images,
-    required this.onDeleteImage,
-  });
+  const FullImagePosting(
+      {super.key, required this.images, required this.onDeleteImage});
 
   @override
-  State<FullImageEdit> createState() => _FullImageEditState();
+  State<FullImagePosting> createState() => _FullImagePostingState();
 }
 
-class _FullImageEditState extends State<FullImageEdit> {
+class _FullImagePostingState extends State<FullImagePosting> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,49 +63,34 @@ class _FullImageEditState extends State<FullImageEdit> {
         itemCount: widget.images.length,
         itemBuilder: (context, index) {
           final image = widget.images[index];
-          final isOldImage = image['isOld'] as bool;
-          final imagePath = image['path'] as String;
 
           return Column(
             children: [
-              // Gambar ditampilkan penuh
               Stack(
                 children: [
-                  isOldImage
-                      ? CachedNetworkImage(
-                          imageUrl: imagePath,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) =>
-                              const CircularProgressIndicator(),
-                          errorWidget: (context, url, error) =>
-                              const Icon(Icons.error, color: Colors.red),
-                        )
-                      : Image.file(
-                          File(imagePath),
-                          fit: BoxFit.cover,
-                        ),
+                  // Gambar ditampilkan dengan penuh
+                  Image.file(
+                    image,
+                    fit: BoxFit.cover,
+                  ),
                   // Tombol X untuk menghapus gambar
                   Positioned(
-                    top: 0,
-                    right: 0,
+                    top: 10,
+                    right: 10,
                     child: IconButton(
                       onPressed: () {
                         setState(() {
-                          // Hapus gambar dari daftar
                           widget.images.removeAt(index);
                         });
-                        widget.onDeleteImage(index,
-                            isOldImage); // Panggil callback untuk menghapus gambar
-                      },
-                      icon: const Icon(Icons.close,
-                          color: Colors.white, size: 30),
+                        widget.onDeleteImage(index);
+                      }, // Menghapus gambar
+                      icon: const Icon(Icons.close, color: Colors.white),
                     ),
                   ),
                 ],
               ),
-              // Jarak antar gambar
-              if (index != widget.images.length - 1)
-                const SizedBox(height: 10), // Jarak antar gambar
+              // Jarak antar gambar, kecuali gambar terakhir
+              if (index != widget.images.length - 1) const SizedBox(height: 10),
             ],
           );
         },

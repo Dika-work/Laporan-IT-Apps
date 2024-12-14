@@ -230,8 +230,9 @@ class _ExpandableContainerState extends State<ExpandableContainer>
                 Padding(
                   padding: const EdgeInsets.only(top: CustomSize.xs),
                   child: ImageGridWidget(
-                      imageUrls: widget
-                          .fotoUser), //'https://i.pinimg.com/736x/c2/d0/61/c2d0613295adec2fe01b1a29ee4930df.jpg'
+                    imageUrls: widget.fotoUser,
+                    username: widget.nama,
+                  ), //'https://i.pinimg.com/736x/c2/d0/61/c2d0613295adec2fe01b1a29ee4930df.jpg'
                 ),
                 if (typeUser == 'admin' && widget.statusKerja != '2')
                   Padding(

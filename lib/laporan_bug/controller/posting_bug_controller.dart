@@ -225,6 +225,7 @@ class PostingBugController extends GetxController {
         Get.snackbar('Sukses', 'Laporan berhasil diperbarui');
         resetEditState(); // Reset state setelah update
         Get.back(result: true);
+        Navigator.of(Get.overlayContext!).pop();
       } else {
         throw Exception(response.data['message'] ?? 'Gagal menyimpan laporan');
       }

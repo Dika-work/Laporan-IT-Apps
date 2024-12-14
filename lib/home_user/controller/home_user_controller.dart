@@ -74,10 +74,10 @@ class HomeUserController extends GetxController {
         );
       } else {
         print('Error fetching data: $e');
-        SnackbarLoader.warningSnackBar(
-          title: 'Error',
-          message: e.response?.data['message'] ?? 'Terjadi kesalahan',
-        );
+        // SnackbarLoader.warningSnackBar(
+        //   title: 'Error',
+        //   message: e.response?.data['message'] ?? 'Terjadi kesalahan',
+        // );
       }
     } finally {
       isLoading.value = false;

@@ -6,9 +6,9 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
-import 'package:laporan/utils/widgets/image%20widget/edit%20postingan%20grid/full_image_edit.dart';
 
 import '../../../../laporan_bug/controller/posting_bug_controller.dart';
+import 'full_image_edit.dart';
 
 class EditImageGridWidget extends StatelessWidget {
   final void Function(int index, bool isOldImage) onDeleteImage;
@@ -73,7 +73,7 @@ class EditImageGridWidget extends StatelessWidget {
                 alignment: Alignment.topRight,
                 child: IconButton(
                   onPressed: () => onDeleteImage(0, combinedImages[0]['isOld']),
-                  icon: const Icon(Icons.close, color: Colors.red),
+                  icon: const Icon(Icons.close, color: Colors.white),
                 ),
               ),
             ],
@@ -152,9 +152,6 @@ class EditImageGridWidget extends StatelessWidget {
                             onDeleteImage(index, isOldImage);
                           },
                         ));
-
-                    print(
-                        'INI AKAN NAVIGATE KE PAGE BARU UNTUK MENAMPILKAN SELURUH GAMBAR2');
                   },
                   child: Stack(
                     children: [
