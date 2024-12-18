@@ -39,6 +39,7 @@ class AppPages {
       name: _Paths.REGISTER,
       page: () => const RegisterView(),
       binding: RegisterBinding(),
+      transition: Transition.fadeIn,
     ),
     GetPage(
       name: _Paths.POSTING_BUG,

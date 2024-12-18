@@ -12,7 +12,7 @@ class RegisterController extends GetxController {
   RxBool obscureText = true.obs;
   RxBool confirmObscureText = true.obs;
   final formKey = GlobalKey<FormState>();
-  RxString selectedTypeUser = ''.obs;
+  RxString selectedTypeUser = 'User'.obs;
   File? selectedImage;
   final RegExp passwordRegex =
       RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$');
@@ -62,16 +62,20 @@ class RegisterController extends GetxController {
       return;
     }
 
+    if (passC.text != confirmPassC.text) {
+      isLoading.value = false;
+      SnackbarLoader.errorSnackBar(
+          title: 'Oops', message: 'Password dan Confirm Password tidak sama');
+      return;
+    }
+
     // Validasi jika gambar belum dipilih
     if (selectedImage == null) {
-      Get.snackbar(
-        'Error',
-        'Gambar pengguna harus diunggah.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
       isLoading.value = false;
+      SnackbarLoader.errorSnackBar(
+        title: 'Error',
+        message: 'Gambar pengguna harus diunggah.',
+      );
       return;
     }
 
@@ -79,7 +83,7 @@ class RegisterController extends GetxController {
       // Membuat form-data
       diomultipart.FormData formData = diomultipart.FormData.fromMap({
         'username': usernameC.text.trim(),
-        'type_user': selectedTypeUser.value,
+        'type_user': selectedTypeUser.value.toLowerCase(),
         'password': passC.text,
         'foto_user': await diomultipart.MultipartFile.fromFile(
           selectedImage!.path,

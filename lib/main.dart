@@ -5,9 +5,20 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:laporan/utils/routes/app_pages.dart';
 import 'package:laporan/utils/theme/theme.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  OneSignal.initialize("475d4f0d-d3e1-4bfe-8dc2-2ebb22eff462");
+
+  OneSignal.Notifications.requestPermission(true);
+  // var deviceState = await OneSignal.User.pushSubscription.id;
+  // if (deviceState != null) {
+  //   print("Player ID: $deviceState");
+  //   // Kirim Player ID ke backend jika pengguna login
+  //   sendPlayerIdToBackend(deviceState);
+  // }
+
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   // Inisialisasi GetStorage

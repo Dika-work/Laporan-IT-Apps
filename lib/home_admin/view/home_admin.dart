@@ -78,17 +78,34 @@ class HomeAdmin extends GetView<HomeAdminController> {
                             'Langgeng Pranamas Sentosa',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
-                          Text(
-                            controller.username.value.toUpperCase(),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.textPrimary,
+                          Row(
+                            children: [
+                              Text(
+                                controller.username.value.toUpperCase(),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.textPrimary,
+                                    ),
+                              ),
+                              const SizedBox(
+                                  height: 15,
+                                  child: VerticalDivider(color: Colors.red)),
+                              GestureDetector(
+                                onTap: () => Get.toNamed(Routes.CREATE_USER),
+                                child: Text(
+                                  'create new user',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelMedium
+                                      ?.copyWith(color: Colors.blue),
                                 ),
+                              )
+                            ],
                           ),
                         ],
                       ),

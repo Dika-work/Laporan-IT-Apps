@@ -13,7 +13,6 @@ abstract class Routes {
   static const PRIORITY = _Paths.PRIORITY_POSTINGAN;
   static const APK_CATEGORY = _Paths.APK_CATEGORIES;
   static const LAPORAN_PEKERJAAN = _Paths.LAPORAN_PEKERJAAN;
-  // static const EDIT_PEKERJAAN = _Paths.EDIT_PEKERJAAN;
 }
 
 abstract class _Paths {
@@ -26,5 +25,4 @@ abstract class _Paths {
   static const PRIORITY_POSTINGAN = '/priority-post';
   static const APK_CATEGORIES = '/apk-categories';
   static const LAPORAN_PEKERJAAN = '/laporan-pekerjaan';
-  // static const EDIT_PEKERJAAN = '/edit-pekerjaan';
 }

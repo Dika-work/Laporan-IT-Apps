@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
-import 'package:laporan/utils/routes/app_pages.dart';
-import '../../utils/theme/app_colors.dart';
 import '../controller/login_controller.dart';
 
 class LoginView extends GetView<LoginController> {
@@ -89,17 +87,6 @@ class LoginView extends GetView<LoginController> {
                       ),
                       const Text(
                         'Ingat Saya',
-                      ),
-                      Expanded(child: Container()),
-                      GestureDetector(
-                        onTap: () => Get.toNamed(Routes.CREATE_USER),
-                        child: Text(
-                          'Buat akun?',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.apply(color: AppColors.buttonPrimary),
-                        ),
                       ),
                     ],
                   ),
