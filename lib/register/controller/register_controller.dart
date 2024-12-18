@@ -3,7 +3,6 @@ import 'package:dio/dio.dart' as diomultipart;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:laporan/utils/routes/app_pages.dart';
 
 import '../../utils/loadings/snackbar.dart';
 
@@ -13,11 +12,12 @@ class RegisterController extends GetxController {
   RxBool confirmObscureText = true.obs;
   final formKey = GlobalKey<FormState>();
   RxString selectedTypeUser = 'User'.obs;
-  File? selectedImage;
+  Rx<File?> selectedImage = Rx<File?>(null);
   final RegExp passwordRegex =
       RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$');
 
   TextEditingController usernameC = TextEditingController();
+  TextEditingController divisiC = TextEditingController();
   TextEditingController passC = TextEditingController();
   TextEditingController confirmPassC = TextEditingController();
 
@@ -40,7 +40,7 @@ class RegisterController extends GetxController {
     final XFile? image = await picker.pickImage(source: source);
 
     if (image != null) {
-      selectedImage = File(image.path);
+      selectedImage.value = File(image.path);
     } else {
       Get.snackbar(
         'Error',
@@ -70,7 +70,7 @@ class RegisterController extends GetxController {
     }
 
     // Validasi jika gambar belum dipilih
-    if (selectedImage == null) {
+    if (selectedImage.value == null) {
       isLoading.value = false;
       SnackbarLoader.errorSnackBar(
         title: 'Error',
@@ -83,10 +83,11 @@ class RegisterController extends GetxController {
       // Membuat form-data
       diomultipart.FormData formData = diomultipart.FormData.fromMap({
         'username': usernameC.text.trim(),
+        'divisi': divisiC.text.trim().toLowerCase(),
         'type_user': selectedTypeUser.value.toLowerCase(),
         'password': passC.text,
         'foto_user': await diomultipart.MultipartFile.fromFile(
-          selectedImage!.path,
+          selectedImage.value!.path,
         ),
       });
 
@@ -101,10 +102,9 @@ class RegisterController extends GetxController {
         usernameC.clear();
         passC.clear();
         confirmPassC.clear();
-        selectedTypeUser.value = '';
-        selectedImage = null;
+        selectedImage.value = null;
 
-        Get.offAllNamed(Routes.LOGIN);
+        Get.back();
       } else {
         SnackbarLoader.errorSnackBar(
             title: 'Oops👻',

@@ -7,9 +7,9 @@ class ApkCategoriesController extends GetxController {
   RxBool isLoading = false.obs;
   RxList<ApkCategoriesModel> apkCategories = <ApkCategoriesModel>[].obs;
 
-  RxString selectedApk = ''.obs;
-  RxString selectedJenisApk = ''.obs;
-  RxString selectedKendaraanId = ''.obs;
+  RxString selectedApk = ''.obs; // Untuk menyimpan title yang dipilih
+  RxString selectedJenisApk = ''.obs; // Untuk menyaring berdasarkan jenis APK
+  RxString selectedKendaraanId = ''.obs; // Menyimpan title sebagai ID
 
   final diomultipart.Dio _dio = diomultipart.Dio(
     diomultipart.BaseOptions(
@@ -72,14 +72,13 @@ class ApkCategoriesController extends GetxController {
     final kendaraan = filteredKendaraanModel.firstWhere(
       (kendaraan) => kendaraan.title == value,
       orElse: () => ApkCategoriesModel(
-        idApk: '',
         title: '',
         subtitle: '',
       ),
     );
 
     selectedApk.value = kendaraan.title;
-    selectedKendaraanId.value = kendaraan.idApk;
+    selectedKendaraanId.value = kendaraan.title; // Menyimpan title sebagai ID
   }
 
   void setselectedJenisApk(String jenis) {

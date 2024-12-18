@@ -10,8 +10,8 @@ class AppsCategory extends GetView<ApkCategoriesController> {
 
   @override
   Widget build(BuildContext context) {
-    final RxnInt selectedCategory = RxnInt(
-        Get.arguments != null ? int.tryParse(Get.arguments as String) : null);
+    final RxnString selectedCategory =
+        RxnString(Get.arguments as String?); // Menggunakan title sebagai nilai
     final RxString customCategoryTitle = ''.obs; // Untuk title "Lainnya"
     final RxString customCategorySubtitle = ''.obs; // Untuk subtitle "Lainnya"
 
@@ -86,7 +86,7 @@ class AppsCategory extends GetView<ApkCategoriesController> {
                   if (index < controller.apkCategories.length) {
                     final category = controller.apkCategories[index];
                     return buildPriorityTile(
-                      value: int.parse(category.idApk),
+                      value: category.title, // Menggunakan title
                       title: category.title,
                       subtitle: category.subtitle,
                       selectedCategory: selectedCategory,
@@ -112,18 +112,20 @@ class AppsCategory extends GetView<ApkCategoriesController> {
                     onPressed: selectedCategory.value != null
                         ? () {
                             // Jika "Lainnya" dipilih, gunakan nilai dari customCategoryTitle dan customCategorySubtitle
-                            if (selectedCategory.value == -1 &&
+                            if (selectedCategory.value == 'Lainnya' &&
                                 customCategoryTitle.value.isNotEmpty) {
                               Get.back(
-                                  result: ApkCategoriesModel(
-                                      idApk: '-1',
-                                      title: customCategoryTitle.value,
-                                      subtitle: customCategorySubtitle.value));
+                                result: ApkCategoriesModel(
+                                  title: customCategoryTitle.value,
+                                  subtitle: customCategorySubtitle.value,
+                                ),
+                              );
                             } else {
                               final selected = controller.apkCategories
                                   .firstWhere((category) =>
-                                      int.parse(category.idApk) ==
-                                      selectedCategory.value);
+                                      category.title ==
+                                      selectedCategory
+                                          .value); // Menyesuaikan dengan title
                               Get.back(result: selected);
                             }
                           }
@@ -138,10 +140,10 @@ class AppsCategory extends GetView<ApkCategoriesController> {
   }
 
   Widget buildPriorityTile({
-    required int value,
+    required String value,
     required String title,
     required String subtitle,
-    required RxnInt selectedCategory,
+    required RxnString selectedCategory,
     required RxString customCategoryTitle,
     required RxString customCategorySubtitle,
   }) {
@@ -164,11 +166,12 @@ class AppsCategory extends GetView<ApkCategoriesController> {
         child: ListTile(
           contentPadding: EdgeInsets.zero,
           leading: Obx(
-            () => Radio<int>(
+            () => Radio<String>(
+              // Menggunakan String sebagai groupValue
               value: value,
               groupValue: selectedCategory.value,
               onChanged: (newValue) {
-                selectedCategory.value = newValue;
+                selectedCategory.value = newValue!;
                 customCategoryTitle.value = '';
                 customCategorySubtitle.value = '';
               },
@@ -184,11 +187,12 @@ class AppsCategory extends GetView<ApkCategoriesController> {
     );
   }
 
-  Widget buildCustomCategoryTile(RxnInt selectedCategory,
+  Widget buildCustomCategoryTile(RxnString selectedCategory,
       RxString customCategoryTitle, RxString customCategorySubtitle) {
     return GestureDetector(
       onTap: () {
-        selectedCategory.value = -1; // -1 untuk menandai "Lainnya"
+        selectedCategory.value =
+            'Lainnya'; // 'Lainnya' untuk menandai custom category
       },
       child: Container(
         decoration: const BoxDecoration(
@@ -200,17 +204,17 @@ class AppsCategory extends GetView<ApkCategoriesController> {
           ),
         ),
         child: Obx(() {
-          final isSelected = selectedCategory.value == -1;
+          final isSelected = selectedCategory.value == 'Lainnya';
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: Radio<int>(
-                  value: -1,
+                leading: Radio<String>(
+                  value: 'Lainnya',
                   groupValue: selectedCategory.value,
                   onChanged: (newValue) {
-                    selectedCategory.value = newValue;
+                    selectedCategory.value = newValue!;
                   },
                 ),
                 title: const Text(

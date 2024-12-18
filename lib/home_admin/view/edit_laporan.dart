@@ -165,7 +165,7 @@ class _EditLaporanPekerjaanState extends State<EditLaporanPekerjaan> {
                 if (kendaraan != null) {
                   apkCategoryController.selectedApk.value = kendaraan.title;
                   apkCategoryController.selectedKendaraanId.value =
-                      kendaraan.idApk;
+                      kendaraan.title;
                 } else {
                   apkCategoryController.resetSelectedKendaraan();
                 }

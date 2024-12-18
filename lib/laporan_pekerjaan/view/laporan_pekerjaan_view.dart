@@ -97,7 +97,7 @@ class LaporanPekerjaanView extends GetView<LaporanPekerjaanController> {
                   _buildUserAndCategorySection(
                       context, username, fotoProfile, divisi, () async {
                     final result = await Get.toNamed(Routes.APK_CATEGORY,
-                        arguments: selectedCategory.value?.idApk);
+                        arguments: selectedCategory.value?.title);
                     if (result != null && result is ApkCategoriesModel) {
                       selectedCategory.value = result;
                     }

@@ -24,7 +24,7 @@ class RegisterView extends GetView<RegisterController> {
               if (controller.usernameC.text.isEmpty &&
                   controller.passC.text.isEmpty &&
                   controller.confirmPassC.text.isEmpty &&
-                  controller.selectedImage == null) {
+                  controller.selectedImage.value == null) {
                 Get.back();
               } else {
                 final isConfirmed = await CustomDialogs.defaultDialog(
@@ -40,7 +40,7 @@ class RegisterView extends GetView<RegisterController> {
                       controller.usernameC.clear();
                       controller.passC.clear();
                       controller.confirmPassC.clear();
-                      controller.selectedImage = null;
+                      controller.selectedImage.value = null;
                       Navigator.of(Get.overlayContext!).pop(true);
                       Navigator.of(Get.overlayContext!).pop(true);
                     },
@@ -87,30 +87,31 @@ class RegisterView extends GetView<RegisterController> {
                   child: Stack(
                     children: [
                       Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            width: 2.5,
-                            color: AppColors.borderSecondary,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              spreadRadius: 2,
-                              blurRadius: 10,
-                              color: Colors.black.withOpacity(0.1),
-                              offset: const Offset(5, 5),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              width: 2.5,
+                              color: AppColors.borderSecondary,
                             ),
-                          ],
-                          shape: BoxShape.circle,
-                        ),
-                        child: CircleAvatar(
-                          radius: 60,
-                          backgroundImage: controller.selectedImage != null
-                              ? FileImage(controller
-                                  .selectedImage!) // Gambar yang dipilih
-                              : const AssetImage('assets/images/lps.png')
-                                  as ImageProvider,
-                        ),
-                      ),
+                            boxShadow: [
+                              BoxShadow(
+                                spreadRadius: 2,
+                                blurRadius: 10,
+                                color: Colors.black.withOpacity(0.1),
+                                offset: const Offset(5, 5),
+                              ),
+                            ],
+                            shape: BoxShape.circle,
+                          ),
+                          child: Obx(
+                            () => CircleAvatar(
+                              radius: 60,
+                              backgroundImage: controller.selectedImage.value !=
+                                      null
+                                  ? FileImage(controller.selectedImage
+                                      .value!) // Gambar yang dipilih
+                                  : const AssetImage('assets/images/lps.png'),
+                            ),
+                          )),
                       Positioned(
                         bottom: 0,
                         right: 3,
@@ -126,7 +127,7 @@ class RegisterView extends GetView<RegisterController> {
                             color: AppColors.primary,
                           ),
                           child: Icon(
-                            controller.selectedImage != null
+                            controller.selectedImage.value != null
                                 ? Icons.delete
                                 : Icons.camera_alt,
                             color: AppColors.white,
@@ -169,6 +170,22 @@ class RegisterView extends GetView<RegisterController> {
                                 controller.selectedTypeUser.value = newValue!;
                               },
                             )),
+                      ),
+                      const SizedBox(height: CustomSize.spaceBtwInputFields),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: CustomSize.md),
+                        child: TextFormField(
+                          controller: controller.divisiC,
+                          decoration:
+                              const InputDecoration(labelText: 'Divisi'),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Divisi is required';
+                            }
+                            return null;
+                          },
+                        ),
                       ),
                       const SizedBox(height: CustomSize.spaceBtwInputFields),
                       // Password Field

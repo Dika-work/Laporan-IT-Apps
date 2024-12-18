@@ -216,7 +216,7 @@ class EditPostingan extends GetView<PostingBugController> {
                       }
                     }, () async {
                       final result = await Get.toNamed(Routes.APK_CATEGORY,
-                          arguments: controller.selectedCategory.value?.idApk);
+                          arguments: controller.selectedCategory.value?.title);
                       if (result != null && result is ApkCategoriesModel) {
                         controller.selectedCategory.value = result;
                       }
