@@ -413,7 +413,7 @@ class EditPostingan extends GetView<PostingBugController> {
       children: [
         Container(
           width: Get.width,
-          padding: const EdgeInsets.only(left: 16.0, top: 8.0),
+          padding: const EdgeInsets.only(left: 16.0),
           child: TextFormField(
             controller: controller.lampiranC,
             keyboardType: TextInputType.text,

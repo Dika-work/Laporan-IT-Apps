@@ -29,7 +29,7 @@ class PostingBugController extends GetxController {
 
   final diomultipart.Dio _dio = diomultipart.Dio(
     diomultipart.BaseOptions(
-      baseUrl: 'http://10.3.80.6:8080', // Ganti dengan URL backend Anda
+      baseUrl: 'http://10.3.80.4:8080', // Ganti dengan URL backend Anda
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
     ),
@@ -215,7 +215,7 @@ class PostingBugController extends GetxController {
       print("New Image Files: ${newImages.map((image) => image.path)}");
 
       // Kirim request ke server
-      final response = await _dio.put('/updateLaporan', data: formData);
+      final response = await _dio.post('/updateLaporan', data: formData);
 
       // Debug: Cetak status code dan response dari server
       print("Response Status: ${response.statusCode}");
@@ -231,6 +231,7 @@ class PostingBugController extends GetxController {
       }
     } catch (e) {
       Get.snackbar('Error', 'Terjadi kesalahan saat menyimpan: $e');
+      print('ini error saat melakukan update pada postingan user: $e');
     } finally {
       isLoading.value = false;
     }
