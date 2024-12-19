@@ -100,6 +100,7 @@ class HomeUserController extends GetxController {
       if (response.statusCode == 200) {
         // Hapus item dari problemList berdasarkan ID asli
         problemList.removeWhere((element) => element.id.toString() == id);
+        await getAllLaporan(usernameHash.value);
 
         SnackbarLoader.successSnackBar(
           title: 'Berhasil',

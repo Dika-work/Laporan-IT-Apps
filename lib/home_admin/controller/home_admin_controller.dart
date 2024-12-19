@@ -2,12 +2,16 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:intl/intl.dart';
 import 'package:laporan/models/all_problem_admin.dart';
 import 'package:laporan/models/laporan_pekerjaan_model.dart';
 import 'package:laporan/utils/loadings/snackbar.dart';
 import 'package:dio/dio.dart' as diomultipart;
+import 'package:laporan/utils/widgets/dialogs.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:laporan/utils/routes/app_pages.dart';
 
 class HomeAdminController extends GetxController {
@@ -297,5 +301,169 @@ class HomeAdminController extends GetxController {
     localStorage.remove('divisi');
     localStorage.write('isLoggedIn', false);
     Get.offAllNamed(Routes.LOGIN);
+  }
+
+  // generate PDF
+  Future<Uint8List> generatePDF(LaporanPekerjaanModel selectedData,
+      {bool withHeader = true}) async {
+    print('Starting PDF generation...');
+    CustomDialogs.loadingIndicator();
+
+    final pdf = pw.Document();
+
+    // Load fonts
+    final regularFont =
+        await rootBundle.load("assets/fonts/Urbanist-Regular.ttf");
+    final ttfRegular = pw.Font.ttf(regularFont);
+    final boldFont = await rootBundle.load("assets/fonts/Urbanist-Bold.ttf");
+    final ttfBold = pw.Font.ttf(boldFont);
+
+    // Load image from assets
+    final ByteData imageData = await rootBundle.load('assets/images/lps.png');
+    final Uint8List imageBytes = imageData.buffer.asUint8List();
+    final image = pw.MemoryImage(imageBytes);
+
+    // Column headers
+
+    if (withHeader) {
+      pdf.addPage(pw.Page(
+        build: (pw.Context context) {
+          return pw.Center(
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.center,
+                    children: [
+                      pw.Image(image, width: 60, height: 60),
+                      pw.SizedBox(width: 10),
+                      pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.center,
+                          children: [
+                            pw.Text('Langgeng Pranamas Sentosa',
+                                style:
+                                    pw.TextStyle(fontSize: 24, font: ttfBold)),
+                            pw.SizedBox(width: 16),
+                            pw.Text(
+                                'Jl. Komp. Babek TN Jl. Rorotan No.3 Blok C, RT.1/RW.10, Rorotan,\nKec. Cakung, Jkt Utara, Daerah Khusus Ibukota Jakarta 14140',
+                                textAlign: pw.TextAlign.center,
+                                style: pw.TextStyle(
+                                    fontSize: 14, font: ttfRegular))
+                          ])
+                    ]),
+                pw.Divider(),
+                pw.SizedBox(height: 15),
+                pw.Text('Laporan Pekerjaan',
+                    textAlign: pw.TextAlign.left,
+                    style: pw.TextStyle(fontSize: 18, font: ttfBold)),
+                pw.SizedBox(height: 10),
+                pw.Text('${username.value} - ${divisi.value}',
+                    textAlign: pw.TextAlign.left,
+                    style: pw.TextStyle(fontSize: 16, font: ttfRegular)),
+                pw.SizedBox(height: 10),
+                pw.Text(
+                    DateFormat('dd MMM yyyy')
+                        .format(DateTime.parse(selectedData.tgl)),
+                    textAlign: pw.TextAlign.center,
+                    style: pw.TextStyle(fontSize: 14, font: ttfRegular)),
+                pw.SizedBox(height: 20),
+                pw.Text('Kegiatan hari ini :',
+                    textAlign: pw.TextAlign.left,
+                    style: pw.TextStyle(fontSize: 16, font: ttfRegular)),
+                pw.SizedBox(height: 10),
+                // Table body
+                pw.Text(selectedData.pekerjaan,
+                    textAlign: pw.TextAlign.left,
+                    style: pw.TextStyle(fontSize: 14, font: ttfRegular)),
+                pw.SizedBox(height: 15),
+                pw.Text('Problem yang sedang dihadapkan :',
+                    textAlign: pw.TextAlign.justify,
+                    style: pw.TextStyle(fontSize: 16, font: ttfRegular)),
+                pw.SizedBox(height: 10),
+                // Table body
+                pw.Text(selectedData.problem,
+                    textAlign: pw.TextAlign.left,
+                    style: pw.TextStyle(fontSize: 14, font: ttfRegular)),
+                pw.SizedBox(height: 25),
+                pw.Text(
+                    '   Laporan ini diharapkan bukti dasar yang telah saya kerjakan pada ${selectedData.apk} yang dilakukan pada tanggal ${DateFormat('dd MMM yyyy').format(DateTime.parse(selectedData.tgl))}.',
+                    textAlign: pw.TextAlign.justify,
+                    style: pw.TextStyle(fontSize: 14, font: ttfRegular)),
+                pw.Spacer(),
+                pw.Align(
+                  alignment: pw.Alignment.centerLeft,
+                  child: pw.Text('Sekian,',
+                      style: pw.TextStyle(fontSize: 14, font: ttfRegular)),
+                ),
+                pw.Align(
+                    alignment: pw.Alignment.centerLeft,
+                    child: pw.Text('Terimakasih',
+                        style: pw.TextStyle(fontSize: 14, font: ttfRegular)))
+              ],
+            ),
+          );
+        },
+      ));
+    } else {
+      pdf.addPage(pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text('Laporan Pekerjaan',
+                  textAlign: pw.TextAlign.left,
+                  style: pw.TextStyle(fontSize: 18, font: ttfBold)),
+              pw.SizedBox(height: 10),
+              pw.Text('${username.value} - ${divisi.value}',
+                  textAlign: pw.TextAlign.left,
+                  style: pw.TextStyle(fontSize: 16, font: ttfRegular)),
+              pw.SizedBox(height: 10),
+              pw.Text(
+                  DateFormat('dd MMM yyyy')
+                      .format(DateTime.parse(selectedData.tgl)),
+                  textAlign: pw.TextAlign.center,
+                  style: pw.TextStyle(fontSize: 14, font: ttfRegular)),
+              pw.SizedBox(height: 20),
+              pw.Text('Kegiatan hari ini :',
+                  textAlign: pw.TextAlign.left,
+                  style: pw.TextStyle(fontSize: 16, font: ttfRegular)),
+              pw.SizedBox(height: 10),
+              // Table body
+              pw.Text(selectedData.pekerjaan,
+                  textAlign: pw.TextAlign.left,
+                  style: pw.TextStyle(fontSize: 14, font: ttfRegular)),
+              pw.SizedBox(height: 15),
+              pw.Text('Problem yang sedang dihadapkan :',
+                  textAlign: pw.TextAlign.justify,
+                  style: pw.TextStyle(fontSize: 16, font: ttfRegular)),
+              pw.SizedBox(height: 10),
+              // Table body
+              pw.Text(selectedData.problem,
+                  textAlign: pw.TextAlign.left,
+                  style: pw.TextStyle(fontSize: 14, font: ttfRegular)),
+              pw.SizedBox(height: 25),
+              pw.Text(
+                  '   Laporan ini diharapkan bukti dasar yang telah saya kerjakan pada ${selectedData.apk} yang dilakukan pada tanggal ${DateFormat('dd MMM yyyy').format(DateTime.parse(selectedData.tgl))}.',
+                  textAlign: pw.TextAlign.justify,
+                  style: pw.TextStyle(fontSize: 14, font: ttfRegular)),
+              pw.Spacer(),
+              pw.Align(
+                alignment: pw.Alignment.centerLeft,
+                child: pw.Text('Sekian,',
+                    style: pw.TextStyle(fontSize: 14, font: ttfRegular)),
+              ),
+              pw.Align(
+                  alignment: pw.Alignment.centerLeft,
+                  child: pw.Text('Terimakasih',
+                      style: pw.TextStyle(fontSize: 14, font: ttfRegular)))
+            ],
+          );
+        },
+      ));
+    }
+
+    Navigator.of(Get.overlayContext!).pop();
+
+    return pdf.save(); // Return PDF as bytes for preview
   }
 }

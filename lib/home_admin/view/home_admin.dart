@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:laporan/home_admin/controller/home_admin_controller.dart';
 import 'package:laporan/home_admin/view/edit_laporan.dart';
@@ -10,6 +11,7 @@ import 'package:laporan/utils/constant/custom_size.dart';
 import 'package:laporan/utils/routes/app_pages.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
 import 'package:laporan/utils/widgets/dialogs.dart';
+import 'package:laporan/utils/widgets/pdf_preview.dart';
 import 'package:laporan/utils/widgets/presence_card.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -231,6 +233,27 @@ class HomeAdmin extends GetView<HomeAdminController> {
               } else {
                 final dataSource = LaporanPekerjaanSource(
                     model: controller.displayedData,
+                    onPdf: (LaporanPekerjaanModel model) async {
+                      // Generate dua jenis PDF
+                      final pdfBytesWithHeader =
+                          await controller.generatePDF(model, withHeader: true);
+
+                      final pdfBytesWithoutHeader = await controller
+                          .generatePDF(model, withHeader: false);
+
+                      // Navigasi ke layar preview PDF
+                      if (pdfBytesWithHeader.isNotEmpty &&
+                          pdfBytesWithoutHeader.isNotEmpty) {
+                        Get.to(
+                          () => PdfPreviewScreen(
+                            pdfBytesWithHeader: pdfBytesWithHeader,
+                            pdfBytesWithoutHeader: pdfBytesWithoutHeader,
+                            fileName:
+                                'Laporan-Pekerjaan-${DateFormat('dd MMM yyyy').format(DateTime.parse(model.tgl))}.pdf',
+                          ),
+                        );
+                      }
+                    },
                     onEdited: (LaporanPekerjaanModel model) async {
                       final result = await Get.to(
                         () => EditLaporanPekerjaan(model: model),
@@ -357,6 +380,23 @@ class HomeAdmin extends GetView<HomeAdminController> {
                                       .bodyMedium
                                       ?.copyWith(fontWeight: FontWeight.bold),
                                 ))),
+                        if (controller.laporanPekerjaan.isNotEmpty)
+                          GridColumn(
+                              width: 120,
+                              columnName: 'Pdf',
+                              label: Container(
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey),
+                                    color: Colors.lightBlue.shade100,
+                                  ),
+                                  child: Text(
+                                    'Pdf',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                  ))),
                         if (controller.laporanPekerjaan.isNotEmpty)
                           GridColumn(
                               width: 120,

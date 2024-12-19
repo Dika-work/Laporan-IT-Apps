@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:laporan/apk/controller/apk_categories_controller.dart';
 import 'package:laporan/laporan_pekerjaan/controller/laporan_pekerjaan_controller.dart';
@@ -25,6 +27,8 @@ class _EditLaporanPekerjaanState extends State<EditLaporanPekerjaan> {
   late TextEditingController pekerjaan;
   late String status;
   late String apk;
+
+  final storage = GetStorage();
 
   final Map<String, String> statusMap = {
     'Selesai': "1",
@@ -59,6 +63,11 @@ class _EditLaporanPekerjaanState extends State<EditLaporanPekerjaan> {
   @override
   Widget build(BuildContext context) {
     String statusValue = statusMap[status] ?? '-';
+
+    final username = storage.read('username');
+    final fotoProfile = storage.read('foto_user');
+    final divisi = storage.read('divisi');
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -115,83 +124,143 @@ class _EditLaporanPekerjaanState extends State<EditLaporanPekerjaan> {
           )
         ],
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          TextFormField(
-            controller: problem,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              label: Text('Apa ada problem?'),
-              filled: true,
-              fillColor: AppColors.white,
+      body: Container(
+        width: Get.width,
+        margin: const EdgeInsets.only(top: 10.0),
+        color: Colors.white,
+        child: ListView(
+          children: [
+            const SizedBox(height: CustomSize.xs),
+            Padding(
+              padding: const EdgeInsets.only(
+                  left: 16.0, right: 16.0, top: 4.0, bottom: 18.0),
+              child: Row(
+                children: [
+                  ClipOval(
+                    child: SizedBox(
+                      width: 42,
+                      height: 42,
+                      child: CachedNetworkImage(
+                        imageUrl: fotoProfile,
+                        progressIndicatorBuilder:
+                            (context, url, downloadProgress) =>
+                                CircularProgressIndicator(
+                                    value: downloadProgress.progress),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    '$username - $divisi',
+                    maxLines: 2,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(color: AppColors.textPrimary),
+                  ),
+                ],
+              ),
             ),
-            onChanged: (value) {
-              setState(() {
-                problem.text = value;
-              });
-            },
-          ),
-          TextFormField(
-            controller: pekerjaan,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              label: Text('Apa ada pekerjaan?'),
-              filled: true,
-              fillColor: AppColors.white,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: TextFormField(
+                controller: problem,
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.newline,
+                maxLines: 10,
+                minLines: 1,
+                decoration: const InputDecoration(
+                  label: Text('Apa ada problem?'),
+                  filled: true,
+                  fillColor: AppColors.white,
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    problem.text = value;
+                  });
+                },
+              ),
             ),
-            onChanged: (value) {
-              setState(() {
-                pekerjaan.text = value;
-              });
-            },
-          ),
-          Obx(() {
-            return DropdownSearch<ApkCategoriesModel>(
-              items: apkCategoryController.filteredKendaraanModel,
-              itemAsString: (ApkCategoriesModel apk) => apk.title,
-              selectedItem: apkCategoryController.filteredKendaraanModel
-                  .firstWhereOrNull((apk) =>
-                      apk.title == apkCategoryController.selectedApk.value),
-              dropdownBuilder: (context, ApkCategoriesModel? selectedItem) {
-                return Text(
-                  selectedItem != null ? selectedItem.title : 'Pilih No Polisi',
-                  style: TextStyle(
-                    color: selectedItem == null ? Colors.grey : Colors.black,
+            const SizedBox(height: CustomSize.spaceBtwItems),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: TextFormField(
+                controller: pekerjaan,
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.newline,
+                maxLines: 10,
+                minLines: 1,
+                decoration: const InputDecoration(
+                  label: Text('Apa ada pekerjaan?'),
+                  filled: true,
+                  fillColor: AppColors.white,
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    pekerjaan.text = value;
+                  });
+                },
+              ),
+            ),
+            const SizedBox(height: CustomSize.spaceBtwItems),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Obx(() {
+                return DropdownSearch<ApkCategoriesModel>(
+                  items: apkCategoryController.filteredKendaraanModel,
+                  itemAsString: (ApkCategoriesModel apk) => apk.title,
+                  selectedItem: apkCategoryController.filteredKendaraanModel
+                      .firstWhereOrNull((apk) =>
+                          apk.title == apkCategoryController.selectedApk.value),
+                  dropdownBuilder: (context, ApkCategoriesModel? selectedItem) {
+                    return Text(
+                      selectedItem != null
+                          ? selectedItem.title
+                          : 'Pilih No Polisi',
+                      style: TextStyle(
+                        color:
+                            selectedItem == null ? Colors.grey : Colors.black,
+                      ),
+                    );
+                  },
+                  onChanged: (ApkCategoriesModel? kendaraan) {
+                    if (kendaraan != null) {
+                      apkCategoryController.selectedApk.value = kendaraan.title;
+                      apkCategoryController.selectedKendaraanId.value =
+                          kendaraan.title;
+                    } else {
+                      apkCategoryController.resetSelectedKendaraan();
+                    }
+                  },
+                  popupProps: const PopupProps.menu(
+                    showSearchBox: true,
+                    searchFieldProps: TextFieldProps(
+                      decoration: InputDecoration(
+                        hintText: 'Search Kendaraan...',
+                      ),
+                    ),
                   ),
                 );
-              },
-              onChanged: (ApkCategoriesModel? kendaraan) {
-                if (kendaraan != null) {
-                  apkCategoryController.selectedApk.value = kendaraan.title;
-                  apkCategoryController.selectedKendaraanId.value =
-                      kendaraan.title;
-                } else {
-                  apkCategoryController.resetSelectedKendaraan();
-                }
-              },
-              popupProps: const PopupProps.menu(
-                showSearchBox: true,
-                searchFieldProps: TextFieldProps(
-                  decoration: InputDecoration(
-                    hintText: 'Search Kendaraan...',
-                  ),
-                ),
+              }),
+            ),
+            const SizedBox(height: CustomSize.spaceBtwItems),
+            // Add more widgets here based on your form structure
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: DropDownWidget(
+                value: status,
+                items: statusMap.keys.toList(),
+                onChanged: (String? value) {
+                  setState(() {
+                    status = value!;
+                  });
+                },
               ),
-            );
-          }),
-          // Add more widgets here based on your form structure
-          DropDownWidget(
-            value: status,
-            items: statusMap.keys.toList(),
-            onChanged: (String? value) {
-              setState(() {
-                status = value!;
-              });
-            },
-          ),
-          Text(status)
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }

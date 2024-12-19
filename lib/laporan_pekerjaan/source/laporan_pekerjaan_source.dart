@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:laporan/models/laporan_pekerjaan_model.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
@@ -8,12 +9,14 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class LaporanPekerjaanSource extends DataGridSource {
   final List<LaporanPekerjaanModel> model;
+  final void Function(LaporanPekerjaanModel)? onPdf;
   final void Function(LaporanPekerjaanModel)? onEdited;
   final void Function(LaporanPekerjaanModel)? onDelete;
   int startIndex = 0;
 
   LaporanPekerjaanSource({
     required this.model,
+    required this.onPdf,
     required this.onEdited,
     required this.onDelete,
     int startIndex = 0,
@@ -40,7 +43,7 @@ class LaporanPekerjaanSource extends DataGridSource {
           padding: const EdgeInsets.symmetric(horizontal: CustomSize.md),
           child: Text(
             e.value.toString(),
-            textAlign: TextAlign.center,
+            textAlign: TextAlign.justify,
             style: const TextStyle(fontSize: CustomSize.fontSizeXm),
           ),
         );
@@ -49,6 +52,29 @@ class LaporanPekerjaanSource extends DataGridSource {
 
     // Add "Edit" and "Delete" buttons if model is not empty
     if (model.isNotEmpty) {
+      // Add Pdf Download
+      cells.add(Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: 60,
+            width: 100,
+            child: ElevatedButton(
+              onPressed: () {
+                if (onPdf != null) {
+                  onPdf!(model[rowIndex]);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.success,
+                padding: const EdgeInsets.all(8.0),
+              ),
+              child: const Icon(Ionicons.document_attach_outline),
+            ),
+          ),
+        ],
+      ));
+
       // Add Edit button
       cells.add(Column(
         mainAxisAlignment: MainAxisAlignment.center,

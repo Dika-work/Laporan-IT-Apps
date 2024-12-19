@@ -10,10 +10,11 @@ class AppsCategory extends GetView<ApkCategoriesController> {
 
   @override
   Widget build(BuildContext context) {
-    final RxnString selectedCategory =
-        RxnString(Get.arguments as String?); // Menggunakan title sebagai nilai
-    final RxString customCategoryTitle = ''.obs; // Untuk title "Lainnya"
-    final RxString customCategorySubtitle = ''.obs; // Untuk subtitle "Lainnya"
+    final RxnString selectedCategory = RxnString(Get.arguments as String?);
+    // final RxString customCategoryTitle = ''.obs;
+    // final RxString customCategorySubtitle = ''.obs;
+
+    print('ini isi dari selectedCategory: ${selectedCategory.value}');
 
     return Scaffold(
       appBar: AppBar(
@@ -90,13 +91,15 @@ class AppsCategory extends GetView<ApkCategoriesController> {
                       title: category.title,
                       subtitle: category.subtitle,
                       selectedCategory: selectedCategory,
-                      customCategoryTitle: customCategoryTitle,
-                      customCategorySubtitle: customCategorySubtitle,
+                      // customCategoryTitle: customCategoryTitle,
+                      // customCategorySubtitle: customCategorySubtitle,
                     );
                   } else {
                     // Opsi "Lainnya"
-                    return buildCustomCategoryTile(selectedCategory,
-                        customCategoryTitle, customCategorySubtitle);
+                    return buildCustomCategoryTile(
+                      selectedCategory,
+                      // customCategoryTitle, customCategorySubtitle
+                    );
                   }
                 },
               );
@@ -111,25 +114,38 @@ class AppsCategory extends GetView<ApkCategoriesController> {
                     ),
                     onPressed: selectedCategory.value != null
                         ? () {
-                            // Jika "Lainnya" dipilih, gunakan nilai dari customCategoryTitle dan customCategorySubtitle
-                            if (selectedCategory.value == 'Lainnya' &&
-                                customCategoryTitle.value.isNotEmpty) {
-                              Get.back(
-                                result: ApkCategoriesModel(
-                                  title: customCategoryTitle.value,
-                                  subtitle: customCategorySubtitle.value,
+                            if (selectedCategory.value == 'Lainnya') {
+                              // Tambahkan kategori custom ke model
+                              final customCategory = ApkCategoriesModel(
+                                title: selectedCategory.value!,
+                                subtitle: '',
+                              );
+
+                              // Tambahkan kategori ke daftar (jika diperlukan)
+                              if (!controller.apkCategories.any((category) =>
+                                  category.title == customCategory.title)) {
+                                controller.apkCategories.add(customCategory);
+                              }
+
+                              // Kembali dengan kategori custom
+                              Get.back(result: customCategory);
+                            } else {
+                              // Ambil data kategori reguler
+                              final selected =
+                                  controller.apkCategories.firstWhere(
+                                (category) =>
+                                    category.title == selectedCategory.value,
+                                orElse: () => ApkCategoriesModel(
+                                  title: 'Unknown',
+                                  subtitle: 'Tidak ada kategori ditemukan',
                                 ),
                               );
-                            } else {
-                              final selected = controller.apkCategories
-                                  .firstWhere((category) =>
-                                      category.title ==
-                                      selectedCategory
-                                          .value); // Menyesuaikan dengan title
                               Get.back(result: selected);
                             }
                           }
-                        : null, // Nonaktifkan jika tidak ada yang dipilih
+                        : null,
+                    // Disable tombol jika tidak ada pilihan atau kategori custom kosong
+                    // Nonaktifkan jika tidak ada yang dipilih atau custom category kosong
                     child: const Text('Selesai'),
                   )),
             )
@@ -144,15 +160,16 @@ class AppsCategory extends GetView<ApkCategoriesController> {
     required String title,
     required String subtitle,
     required RxnString selectedCategory,
-    required RxString customCategoryTitle,
-    required RxString customCategorySubtitle,
+    // required RxString customCategoryTitle,
+    // required RxString customCategorySubtitle,
   }) {
     return GestureDetector(
       onTap: () {
-        selectedCategory.value = value;
-        customCategoryTitle.value =
-            ''; // Reset kategori custom jika lainnya tidak dipilih
-        customCategorySubtitle.value = '';
+        selectedCategory.value =
+            value; // Perbarui selectedCategory dengan title kategori yang dipilih
+        // customCategoryTitle.value =
+        //     ''; // Reset kategori custom jika kategori master dipilih
+        // customCategorySubtitle.value = '';
       },
       child: Container(
         decoration: const BoxDecoration(
@@ -167,13 +184,12 @@ class AppsCategory extends GetView<ApkCategoriesController> {
           contentPadding: EdgeInsets.zero,
           leading: Obx(
             () => Radio<String>(
-              // Menggunakan String sebagai groupValue
               value: value,
               groupValue: selectedCategory.value,
               onChanged: (newValue) {
                 selectedCategory.value = newValue!;
-                customCategoryTitle.value = '';
-                customCategorySubtitle.value = '';
+                // customCategoryTitle.value = '';
+                // customCategorySubtitle.value = '';
               },
             ),
           ),
@@ -187,12 +203,19 @@ class AppsCategory extends GetView<ApkCategoriesController> {
     );
   }
 
-  Widget buildCustomCategoryTile(RxnString selectedCategory,
-      RxString customCategoryTitle, RxString customCategorySubtitle) {
+  Widget buildCustomCategoryTile(
+    RxnString selectedCategory,
+    // RxString customCategoryTitle,
+    // RxString customCategorySubtitle,
+  ) {
+    // final TextEditingController customTitleController =
+    //     TextEditingController(text: customCategoryTitle.value);
+
     return GestureDetector(
       onTap: () {
         selectedCategory.value =
             'Lainnya'; // 'Lainnya' untuk menandai custom category
+        print('ini saat memilih Lainnya : ${selectedCategory.value}');
       },
       child: Container(
         decoration: const BoxDecoration(
@@ -204,7 +227,7 @@ class AppsCategory extends GetView<ApkCategoriesController> {
           ),
         ),
         child: Obx(() {
-          final isSelected = selectedCategory.value == 'Lainnya';
+          // final isSelected = selectedCategory.value == 'Lainnya';
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -215,6 +238,7 @@ class AppsCategory extends GetView<ApkCategoriesController> {
                   groupValue: selectedCategory.value,
                   onChanged: (newValue) {
                     selectedCategory.value = newValue!;
+                    print('RadioButton changed to: $newValue');
                   },
                 ),
                 title: const Text(
@@ -222,18 +246,26 @@ class AppsCategory extends GetView<ApkCategoriesController> {
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
-              if (isSelected)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(CustomSize.md,
-                      CustomSize.xs, CustomSize.md, CustomSize.md),
-                  child: TextFormField(
-                    onChanged: (value) => customCategoryTitle.value = value,
-                    decoration: const InputDecoration(
-                      labelText: 'Masukkan kategori Anda',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
+              // if (isSelected)
+              //   Padding(
+              //     padding: const EdgeInsets.fromLTRB(CustomSize.md,
+              //         CustomSize.xs, CustomSize.md, CustomSize.md),
+              //     child: TextFormField(
+              //       controller:
+              //           customTitleController, // Set initial value for TextFormField
+              //       onChanged: (value) {
+              //         // Jangan ubah selectedCategory, hanya perbarui customCategoryTitle
+              //         customCategoryTitle.value = value;
+              //         print(
+              //             'customCategoryTitle: ${customCategoryTitle.value}');
+              //         print('selectedCategory: ${selectedCategory.value}');
+              //       },
+              //       decoration: const InputDecoration(
+              //         labelText: 'Masukkan kategori Anda',
+              //         border: OutlineInputBorder(),
+              //       ),
+              //     ),
+              //   ),
             ],
           );
         }),

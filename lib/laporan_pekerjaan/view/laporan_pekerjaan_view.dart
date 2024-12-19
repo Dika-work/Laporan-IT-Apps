@@ -230,10 +230,11 @@ class LaporanPekerjaanView extends GetView<LaporanPekerjaanController> {
           const SizedBox(height: CustomSize.md),
           TextFormField(
             controller: controller.problemC,
-            keyboardType: TextInputType.text,
+            keyboardType: TextInputType.multiline,
             maxLines: 10,
             minLines: 1,
             style: Theme.of(context).textTheme.bodyMedium,
+            textInputAction: TextInputAction.newline,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return '* Jika tidak ada problem berikan -';
@@ -248,10 +249,11 @@ class LaporanPekerjaanView extends GetView<LaporanPekerjaanController> {
           const SizedBox(height: CustomSize.spaceBtwInputFields),
           TextFormField(
             controller: controller.pekerjaanC,
-            keyboardType: TextInputType.text,
+            keyboardType: TextInputType.multiline,
             maxLines: 10,
             minLines: 1,
             style: Theme.of(context).textTheme.bodyMedium,
+            textInputAction: TextInputAction.newline,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return '* Pekerjaan yang sudah dilakukan wajib di isi';

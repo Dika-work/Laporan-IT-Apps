@@ -30,8 +30,8 @@ class ImageGridWidget extends StatelessWidget {
             ),
             childrenDelegate: SliverChildBuilderDelegate(
               (context, index) {
+                // Menampilkan tombol "+sisanya" hanya jika ada lebih dari 4 gambar
                 if (index == 3 && imageUrls.length > 4) {
-                  // Tombol "+sisanya" untuk gambar lebih dari 4
                   return GestureDetector(
                     onTap: () {
                       // Navigasi ke galeri penuh
@@ -48,13 +48,15 @@ class ImageGridWidget extends StatelessWidget {
                     },
                     child: Stack(
                       children: [
-                        CachedNetworkImage(
-                          imageUrl: imageUrls[index],
-                          placeholder: (context, url) =>
-                              const CircularProgressIndicator(),
-                          errorWidget: (context, url, error) =>
-                              const Icon(Icons.error),
-                          fit: BoxFit.cover,
+                        Positioned.fill(
+                          child: CachedNetworkImage(
+                            imageUrl: imageUrls[index],
+                            placeholder: (context, url) =>
+                                const CircularProgressIndicator(),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                            fit: BoxFit.cover,
+                          ),
                         ),
                         Positioned.fill(
                           child: Container(
@@ -62,7 +64,11 @@ class ImageGridWidget extends StatelessWidget {
                             child: Center(
                               child: Text(
                                 "+${imageUrls.length - 4}",
-                                style: Theme.of(context).textTheme.titleLarge,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                        color: Colors.white, fontSize: 24),
                               ),
                             ),
                           ),
@@ -96,6 +102,7 @@ class ImageGridWidget extends StatelessWidget {
                   ),
                 );
               },
+              // Batasi hanya 4 gambar yang ditampilkan
               childCount: imageUrls.length > 4 ? 4 : imageUrls.length,
             ),
           );
@@ -119,11 +126,12 @@ class ImageGridWidget extends StatelessWidget {
         QuiltedGridTile(4, 4), // Satu gambar besar di bawah
       ];
     } else {
+      // Untuk lebih dari 4 gambar, tampilkan 4 gambar dengan "+sisanya" pada gambar ke-4
       return const [
-        QuiltedGridTile(2, 2),
-        QuiltedGridTile(1, 1),
-        QuiltedGridTile(1, 1),
-        QuiltedGridTile(1, 2),
+        QuiltedGridTile(2, 2), // Gambar pertama
+        QuiltedGridTile(2, 2), // Gambar kedua
+        QuiltedGridTile(2, 2), // Gambar ketiga
+        QuiltedGridTile(2, 2), // Gambar keempat (tombol "+sisanya" ada di sini)
       ];
     }
   }
