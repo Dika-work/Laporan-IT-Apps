@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:laporan/utils/loadings/loading_img.dart';
 import 'package:laporan/utils/widgets/image%20widget/full_image.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
@@ -51,8 +52,9 @@ class ImageGridWidget extends StatelessWidget {
                         Positioned.fill(
                           child: CachedNetworkImage(
                             imageUrl: imageUrls[index],
-                            placeholder: (context, url) =>
-                                const CircularProgressIndicator(),
+                            progressIndicatorBuilder:
+                                (_, __, downloadProgress) => LoadingImg(
+                                    valueProggress: downloadProgress.progress),
                             errorWidget: (context, url, error) =>
                                 const Icon(Icons.error),
                             fit: BoxFit.cover,
@@ -94,8 +96,8 @@ class ImageGridWidget extends StatelessWidget {
                   },
                   child: CachedNetworkImage(
                     imageUrl: imageUrls[index],
-                    placeholder: (context, url) =>
-                        const CircularProgressIndicator(),
+                    progressIndicatorBuilder: (_, __, downloadProgress) =>
+                        LoadingImg(valueProggress: downloadProgress.progress),
                     errorWidget: (context, url, error) =>
                         const Icon(Icons.error),
                     fit: BoxFit.cover,

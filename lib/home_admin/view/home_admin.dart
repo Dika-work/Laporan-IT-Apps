@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:laporan/home_admin/controller/home_admin_controller.dart';
@@ -8,6 +9,7 @@ import 'package:laporan/home_admin/view/edit_laporan.dart';
 import 'package:laporan/laporan_pekerjaan/source/laporan_pekerjaan_source.dart';
 import 'package:laporan/models/laporan_pekerjaan_model.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
+import 'package:laporan/utils/loadings/loading_img.dart';
 import 'package:laporan/utils/routes/app_pages.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
 import 'package:laporan/utils/widgets/dialogs.dart';
@@ -80,34 +82,17 @@ class HomeAdmin extends GetView<HomeAdminController> {
                             'Langgeng Pranamas Sentosa',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
-                          Row(
-                            children: [
-                              Text(
-                                controller.username.value.toUpperCase(),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.textPrimary,
-                                    ),
-                              ),
-                              const SizedBox(
-                                  height: 15,
-                                  child: VerticalDivider(color: Colors.red)),
-                              GestureDetector(
-                                onTap: () => Get.toNamed(Routes.CREATE_USER),
-                                child: Text(
-                                  'create new user',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelMedium
-                                      ?.copyWith(color: Colors.blue),
+                          Text(
+                            controller.username.value.toUpperCase(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary,
                                 ),
-                              )
-                            ],
                           ),
                         ],
                       ),
@@ -140,10 +125,9 @@ class HomeAdmin extends GetView<HomeAdminController> {
                         height: 42,
                         child: CachedNetworkImage(
                           imageUrl: controller.fotoUser.value,
-                          progressIndicatorBuilder:
-                              (context, url, downloadProgress) =>
-                                  CircularProgressIndicator(
-                                      value: downloadProgress.progress),
+                          progressIndicatorBuilder: (_, __, downloadProgress) =>
+                              LoadingImg(
+                                  valueProggress: downloadProgress.progress),
                           errorWidget: (context, url, error) =>
                               const Icon(Icons.error),
                         ),
@@ -179,6 +163,7 @@ class HomeAdmin extends GetView<HomeAdminController> {
                 ),
               ),
             ),
+
             // Konten tambahan
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: CustomSize.sm),
@@ -208,8 +193,46 @@ class HomeAdmin extends GetView<HomeAdminController> {
                 );
               }),
             ),
-
             const SizedBox(height: CustomSize.sm),
+            Container(
+              margin: const EdgeInsets.only(bottom: CustomSize.sm),
+              padding: const EdgeInsets.symmetric(vertical: CustomSize.sm),
+              color: Colors.white,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () => Get.toNamed(Routes.CREATE_USER),
+                    child: Container(
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius:
+                            BorderRadius.circular(CustomSize.borderRadiusSm),
+                      ),
+                      child: const Icon(
+                        Iconsax.personalcard,
+                        color: AppColors.white,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => Get.toNamed(Routes.APK_VIEW),
+                    child: Container(
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius:
+                            BorderRadius.circular(CustomSize.borderRadiusSm),
+                      ),
+                      child: const Icon(Ionicons.apps_outline,
+                          color: AppColors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Obx(() {
               if (controller.isLoading.value &&
                   controller.laporanPekerjaan.isEmpty) {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:info_popup/info_popup.dart';
 import 'package:intl/intl.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
+import 'package:laporan/utils/loadings/loading_img.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
 import 'package:laporan/utils/widgets/expandable_text.dart';
 import 'package:laporan/utils/widgets/image%20widget/image_grid.dart';
@@ -103,10 +104,8 @@ class PresenceTile extends StatelessWidget {
                     height: 42,
                     child: CachedNetworkImage(
                       imageUrl: fotoProfile,
-                      progressIndicatorBuilder:
-                          (context, url, downloadProgress) =>
-                              CircularProgressIndicator(
-                                  value: downloadProgress.progress),
+                      progressIndicatorBuilder: (_, __, downloadProgress) =>
+                          LoadingImg(valueProggress: downloadProgress.progress),
                       errorWidget: (context, url, error) =>
                           const Icon(Icons.error),
                     ),

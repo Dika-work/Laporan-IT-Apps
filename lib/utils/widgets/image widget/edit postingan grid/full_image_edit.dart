@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
+import 'package:laporan/utils/loadings/loading_img.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
 
 class FullImageEdit extends StatefulWidget {
@@ -79,8 +80,9 @@ class _FullImageEditState extends State<FullImageEdit> {
                       ? CachedNetworkImage(
                           imageUrl: imagePath,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) =>
-                              const CircularProgressIndicator(),
+                          progressIndicatorBuilder: (_, __, downloadProgress) =>
+                              LoadingImg(
+                                  valueProggress: downloadProgress.progress),
                           errorWidget: (context, url, error) =>
                               const Icon(Icons.error, color: Colors.red),
                         )

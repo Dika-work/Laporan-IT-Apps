@@ -6,6 +6,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
+import 'package:laporan/utils/loadings/loading_img.dart';
 
 import '../../../../laporan_bug/controller/posting_bug_controller.dart';
 import 'full_image_edit.dart';
@@ -60,8 +61,8 @@ class EditImageGridWidget extends StatelessWidget {
                   ? CachedNetworkImage(
                       imageUrl: combinedImages[0]['path'],
                       fit: BoxFit.cover,
-                      placeholder: (context, url) =>
-                          const CircularProgressIndicator(),
+                      progressIndicatorBuilder: (_, __, downloadProgress) =>
+                          LoadingImg(valueProggress: downloadProgress.progress),
                       errorWidget: (context, url, error) =>
                           const Icon(Icons.error),
                     )
@@ -105,8 +106,10 @@ class EditImageGridWidget extends StatelessWidget {
                             ? CachedNetworkImage(
                                 imageUrl: imagePath,
                                 fit: BoxFit.cover,
-                                placeholder: (context, url) =>
-                                    const CircularProgressIndicator(),
+                                progressIndicatorBuilder:
+                                    (_, __, downloadProgress) => LoadingImg(
+                                        valueProggress:
+                                            downloadProgress.progress),
                                 errorWidget: (context, url, error) =>
                                     const Icon(Icons.error),
                               )
@@ -160,8 +163,10 @@ class EditImageGridWidget extends StatelessWidget {
                             ? CachedNetworkImage(
                                 imageUrl: imagePath,
                                 fit: BoxFit.cover,
-                                placeholder: (context, url) =>
-                                    const CircularProgressIndicator(),
+                                progressIndicatorBuilder:
+                                    (_, __, downloadProgress) => LoadingImg(
+                                        valueProggress:
+                                            downloadProgress.progress),
                                 errorWidget: (context, url, error) =>
                                     const Icon(Icons.error),
                               )

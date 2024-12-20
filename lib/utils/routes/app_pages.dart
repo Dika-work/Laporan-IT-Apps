@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:laporan/apk/view/apk_view.dart';
 import 'package:laporan/home_admin/view/home_admin.dart';
 import 'package:laporan/home_user/view/home_user.dart';
 import 'package:laporan/laporan_bug/view/apk_category.dart';
@@ -68,11 +69,11 @@ class AppPages {
       binding: LaporanPekerjaanBinding(),
       transition: Transition.rightToLeft,
     ),
-    // GetPage(
-    //   name: _Paths.EDIT_PEKERJAAN,
-    //   page: () => const EditLaporanPekerjaan(),
-    //   binding: LaporanPekerjaanBinding(),
-    //   transition: Transition.rightToLeft,
-    // ),
+    GetPage(
+      name: _Paths.APK_VIEW,
+      page: () => const ApkView(),
+      binding: ApkCategoriesBinding(),
+      transition: Transition.rightToLeft,
+    ),
   ];
 }

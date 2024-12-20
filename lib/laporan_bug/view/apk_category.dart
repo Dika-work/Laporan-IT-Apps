@@ -4,6 +4,7 @@ import 'package:laporan/apk/controller/apk_categories_controller.dart';
 import 'package:laporan/models/apk_categories_model.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
+import 'package:shimmer/shimmer.dart';
 
 class AppsCategory extends GetView<ApkCategoriesController> {
   const AppsCategory({super.key});
@@ -11,10 +12,6 @@ class AppsCategory extends GetView<ApkCategoriesController> {
   @override
   Widget build(BuildContext context) {
     final RxnString selectedCategory = RxnString(Get.arguments as String?);
-    // final RxString customCategoryTitle = ''.obs;
-    // final RxString customCategorySubtitle = ''.obs;
-
-    print('ini isi dari selectedCategory: ${selectedCategory.value}');
 
     return Scaffold(
       appBar: AppBar(
@@ -27,130 +24,153 @@ class AppsCategory extends GetView<ApkCategoriesController> {
               .titleMedium
               ?.copyWith(fontWeight: FontWeight.w400, color: Colors.black),
         ),
+        actions: [
+          Obx(() => GestureDetector(
+                onTap: selectedCategory.value != null
+                    ? () {
+                        if (selectedCategory.value == 'Lainnya') {
+                          // Tambahkan kategori custom ke model
+                          final customCategory = ApkCategoriesModel(
+                            title: selectedCategory.value!,
+                            subtitle: '',
+                          );
+
+                          // Tambahkan kategori ke daftar (jika diperlukan)
+                          if (!controller.apkCategories.any((category) =>
+                              category.title == customCategory.title)) {
+                            controller.apkCategories.add(customCategory);
+                          }
+
+                          // Kembali dengan kategori custom
+                          Get.back(result: customCategory);
+                        } else {
+                          // Ambil data kategori reguler
+                          final selected = controller.apkCategories.firstWhere(
+                            (category) =>
+                                category.title == selectedCategory.value,
+                            orElse: () => ApkCategoriesModel(
+                              title: 'Unknown',
+                              subtitle: 'Tidak ada kategori ditemukan',
+                            ),
+                          );
+                          Get.back(result: selected);
+                        }
+                      }
+                    : null,
+                child: Container(
+                  padding: const EdgeInsets.all(CustomSize.xs),
+                  margin: const EdgeInsets.fromLTRB(
+                      0, CustomSize.sm, CustomSize.sm, CustomSize.sm),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    borderRadius:
+                        BorderRadius.circular(CustomSize.borderRadiusSm),
+                    color: selectedCategory.value != null
+                        ? AppColors.buttonPrimary
+                        : AppColors.buttonDisabled,
+                  ),
+                  child: Text(
+                    'SELESAI',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
+                ),
+              ))
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: CustomSize.sm, vertical: CustomSize.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Apa yang dimaksud dengan kategori aplikasi dalam postingan Anda?',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textPrimary, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: CustomSize.sm),
-            const Text(
-                'Postingan Anda memerlukan kategori aplikasi sebagai dasar untuk laporan bug yang diajukan.'),
-            const SizedBox(height: CustomSize.sm),
-            RichText(
-                text: TextSpan(
-                    text: 'Postingan Anda ',
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(
+            CustomSize.sm, CustomSize.md, CustomSize.sm, 0),
+        children: [
+          Text(
+            'Apa yang dimaksud dengan kategori aplikasi dalam postingan Anda?',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: CustomSize.sm),
+          const Text(
+              'Postingan Anda memerlukan kategori aplikasi sebagai dasar untuk laporan bug yang diajukan.'),
+          const SizedBox(height: CustomSize.sm),
+          RichText(
+              text: TextSpan(
+                  text: 'Postingan Anda ',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.apply(color: AppColors.textPrimary),
+                  children: [
+                TextSpan(
+                    text: 'tidak dapat dikirim',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text: ', jika bagian ini belum diisi.',
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium
-                        ?.apply(color: AppColors.textPrimary),
-                    children: [
-                  TextSpan(
-                      text: 'tidak dapat dikirim',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.bold)),
-                  TextSpan(
-                      text: ', jika bagian ini belum diisi.',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.apply(color: AppColors.textPrimary))
-                ])),
-            const SizedBox(height: CustomSize.sm),
-            Text(
-              'Pilih kategori aplikasi',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            Obx(() {
-              if (controller.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (controller.apkCategories.isEmpty) {
-                return const Center(child: Text('Tidak ada kategori tersedia'));
-              }
+                        ?.apply(color: AppColors.textPrimary))
+              ])),
+          const SizedBox(height: CustomSize.sm),
+          Text(
+            'Pilih kategori aplikasi',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          Obx(() {
+            if (controller.isLoading.value) {
               return ListView.builder(
+                padding: const EdgeInsets.only(top: CustomSize.sm),
+                itemCount: 4,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: controller.apkCategories.length +
-                    1, // Tambah 1 untuk "Lainnya"
                 itemBuilder: (context, index) {
-                  if (index < controller.apkCategories.length) {
-                    final category = controller.apkCategories[index];
-                    return buildPriorityTile(
-                      value: category.title, // Menggunakan title
-                      title: category.title,
-                      subtitle: category.subtitle,
-                      selectedCategory: selectedCategory,
-                      // customCategoryTitle: customCategoryTitle,
-                      // customCategorySubtitle: customCategorySubtitle,
-                    );
-                  } else {
-                    // Opsi "Lainnya"
-                    return buildCustomCategoryTile(
-                      selectedCategory,
-                      // customCategoryTitle, customCategorySubtitle
-                    );
-                  }
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: CustomSize.xs),
+                    child: Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(
+                        width: Get.width,
+                        height: 80,
+                        color: Colors.white,
+                      ),
+                    ),
+                  );
                 },
               );
-            }),
-            const Spacer(),
-            SizedBox(
-              width: Get.width,
-              child: Obx(() => ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding:
-                          const EdgeInsets.symmetric(vertical: CustomSize.sm),
-                    ),
-                    onPressed: selectedCategory.value != null
-                        ? () {
-                            if (selectedCategory.value == 'Lainnya') {
-                              // Tambahkan kategori custom ke model
-                              final customCategory = ApkCategoriesModel(
-                                title: selectedCategory.value!,
-                                subtitle: '',
-                              );
-
-                              // Tambahkan kategori ke daftar (jika diperlukan)
-                              if (!controller.apkCategories.any((category) =>
-                                  category.title == customCategory.title)) {
-                                controller.apkCategories.add(customCategory);
-                              }
-
-                              // Kembali dengan kategori custom
-                              Get.back(result: customCategory);
-                            } else {
-                              // Ambil data kategori reguler
-                              final selected =
-                                  controller.apkCategories.firstWhere(
-                                (category) =>
-                                    category.title == selectedCategory.value,
-                                orElse: () => ApkCategoriesModel(
-                                  title: 'Unknown',
-                                  subtitle: 'Tidak ada kategori ditemukan',
-                                ),
-                              );
-                              Get.back(result: selected);
-                            }
-                          }
-                        : null,
-                    // Disable tombol jika tidak ada pilihan atau kategori custom kosong
-                    // Nonaktifkan jika tidak ada yang dipilih atau custom category kosong
-                    child: const Text('Selesai'),
-                  )),
-            )
-          ],
-        ),
+            }
+            if (controller.apkCategories.isEmpty) {
+              return const Center(child: Text('Tidak ada kategori tersedia'));
+            }
+            return ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: controller.apkCategories.length +
+                  1, // Tambah 1 untuk "Lainnya"
+              itemBuilder: (context, index) {
+                if (index < controller.apkCategories.length) {
+                  final category = controller.apkCategories[index];
+                  return buildPriorityTile(
+                    value: category.title,
+                    title: category.title,
+                    subtitle: category.subtitle,
+                    selectedCategory: selectedCategory,
+                  );
+                } else {
+                  // Opsi "Lainnya"
+                  return buildCustomCategoryTile(
+                    selectedCategory,
+                  );
+                }
+              },
+            );
+          }),
+        ],
       ),
     );
   }
@@ -160,16 +180,11 @@ class AppsCategory extends GetView<ApkCategoriesController> {
     required String title,
     required String subtitle,
     required RxnString selectedCategory,
-    // required RxString customCategoryTitle,
-    // required RxString customCategorySubtitle,
   }) {
     return GestureDetector(
       onTap: () {
         selectedCategory.value =
             value; // Perbarui selectedCategory dengan title kategori yang dipilih
-        // customCategoryTitle.value =
-        //     ''; // Reset kategori custom jika kategori master dipilih
-        // customCategorySubtitle.value = '';
       },
       child: Container(
         decoration: const BoxDecoration(
@@ -188,8 +203,6 @@ class AppsCategory extends GetView<ApkCategoriesController> {
               groupValue: selectedCategory.value,
               onChanged: (newValue) {
                 selectedCategory.value = newValue!;
-                // customCategoryTitle.value = '';
-                // customCategorySubtitle.value = '';
               },
             ),
           ),
@@ -205,12 +218,7 @@ class AppsCategory extends GetView<ApkCategoriesController> {
 
   Widget buildCustomCategoryTile(
     RxnString selectedCategory,
-    // RxString customCategoryTitle,
-    // RxString customCategorySubtitle,
   ) {
-    // final TextEditingController customTitleController =
-    //     TextEditingController(text: customCategoryTitle.value);
-
     return GestureDetector(
       onTap: () {
         selectedCategory.value =
@@ -246,26 +254,6 @@ class AppsCategory extends GetView<ApkCategoriesController> {
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
-              // if (isSelected)
-              //   Padding(
-              //     padding: const EdgeInsets.fromLTRB(CustomSize.md,
-              //         CustomSize.xs, CustomSize.md, CustomSize.md),
-              //     child: TextFormField(
-              //       controller:
-              //           customTitleController, // Set initial value for TextFormField
-              //       onChanged: (value) {
-              //         // Jangan ubah selectedCategory, hanya perbarui customCategoryTitle
-              //         customCategoryTitle.value = value;
-              //         print(
-              //             'customCategoryTitle: ${customCategoryTitle.value}');
-              //         print('selectedCategory: ${selectedCategory.value}');
-              //       },
-              //       decoration: const InputDecoration(
-              //         labelText: 'Masukkan kategori Anda',
-              //         border: OutlineInputBorder(),
-              //       ),
-              //     ),
-              //   ),
             ],
           );
         }),

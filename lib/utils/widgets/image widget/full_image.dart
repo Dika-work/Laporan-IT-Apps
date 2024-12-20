@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:laporan/utils/loadings/loading_img.dart';
 
 class FullImageGallery extends StatelessWidget {
   final List<String> imageUrls;
@@ -33,8 +34,8 @@ class FullImageGallery extends StatelessWidget {
           return InteractiveViewer(
             child: CachedNetworkImage(
               imageUrl: imageUrls[index],
-              placeholder: (context, url) =>
-                  const Center(child: CircularProgressIndicator()),
+              progressIndicatorBuilder: (_, __, downloadProgress) =>
+                  LoadingImg(valueProggress: downloadProgress.progress),
               errorWidget: (context, url, error) =>
                   const Center(child: Icon(Icons.error, color: Colors.white)),
               fit: BoxFit.contain,

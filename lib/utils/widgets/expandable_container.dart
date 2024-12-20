@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
+import 'package:laporan/utils/loadings/loading_img.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
 import 'package:laporan/utils/widgets/expandable_text.dart';
 import 'package:laporan/utils/widgets/image%20widget/image_grid.dart';
@@ -149,10 +150,9 @@ class _ExpandableContainerState extends State<ExpandableContainer>
                       height: 42,
                       child: CachedNetworkImage(
                         imageUrl: widget.fotoProfile,
-                        progressIndicatorBuilder:
-                            (context, url, downloadProgress) =>
-                                CircularProgressIndicator(
-                                    value: downloadProgress.progress),
+                        progressIndicatorBuilder: (_, __, downloadProgress) =>
+                            LoadingImg(
+                                valueProggress: downloadProgress.progress),
                         errorWidget: (context, url, error) =>
                             const Icon(Icons.error),
                       ),

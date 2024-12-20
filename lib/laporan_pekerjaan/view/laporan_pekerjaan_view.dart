@@ -7,6 +7,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:laporan/laporan_pekerjaan/controller/laporan_pekerjaan_controller.dart';
 import 'package:laporan/models/apk_categories_model.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
+import 'package:laporan/utils/loadings/loading_img.dart';
 import 'package:laporan/utils/loadings/snackbar.dart';
 import 'package:laporan/utils/routes/app_pages.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
@@ -134,8 +135,8 @@ class LaporanPekerjaanView extends GetView<LaporanPekerjaanController> {
               height: 42,
               child: CachedNetworkImage(
                 imageUrl: fotoProfile,
-                progressIndicatorBuilder: (context, url, downloadProgress) =>
-                    CircularProgressIndicator(value: downloadProgress.progress),
+                progressIndicatorBuilder: (_, __, downloadProgress) =>
+                    LoadingImg(valueProggress: downloadProgress.progress),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),

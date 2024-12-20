@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:laporan/laporan_bug/controller/posting_bug_controller.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
+import 'package:laporan/utils/loadings/loading_img.dart';
 import 'package:laporan/utils/routes/app_pages.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
 import 'package:laporan/utils/widgets/presence_card.dart';
@@ -116,10 +118,9 @@ class HomeUser extends GetView<HomeUserController> {
                         height: 42,
                         child: CachedNetworkImage(
                           imageUrl: controller.fotoUser.value,
-                          progressIndicatorBuilder:
-                              (context, url, downloadProgress) =>
-                                  CircularProgressIndicator(
-                                      value: downloadProgress.progress),
+                          progressIndicatorBuilder: (_, __, downloadProgress) =>
+                              LoadingImg(
+                                  valueProggress: downloadProgress.progress),
                           errorWidget: (context, url, error) =>
                               const Icon(Icons.error),
                         ),
@@ -184,9 +185,29 @@ class HomeUser extends GetView<HomeUserController> {
                 );
               }),
             ),
+
             Obx(() {
               if (controller.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
+                return ListView.builder(
+                  padding: const EdgeInsets.only(top: CustomSize.sm),
+                  itemCount: 4,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: CustomSize.xs),
+                      child: Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          width: Get.width * 0.2,
+                          height: Get.height * 0.3,
+                          color: Colors.white,
+                        ),
+                      ),
+                    );
+                  },
+                );
               }
 
               if (controller.problemList.isEmpty) {

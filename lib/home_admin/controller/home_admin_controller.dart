@@ -23,6 +23,7 @@ class HomeAdminController extends GetxController {
   RxString typeUser = ''.obs;
   RxString fotoUser = ''.obs;
   RxString divisi = ''.obs;
+
   RxList<ProblemDataForAdmin> problemList = <ProblemDataForAdmin>[].obs;
   RxList<LaporanPekerjaanModel> laporanPekerjaan =
       <LaporanPekerjaanModel>[].obs;

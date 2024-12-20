@@ -9,6 +9,7 @@ import 'package:laporan/laporan_pekerjaan/controller/laporan_pekerjaan_controlle
 import 'package:laporan/models/apk_categories_model.dart';
 import 'package:laporan/models/laporan_pekerjaan_model.dart';
 import 'package:laporan/utils/constant/custom_size.dart';
+import 'package:laporan/utils/loadings/loading_img.dart';
 import 'package:laporan/utils/theme/app_colors.dart';
 import 'package:laporan/utils/widgets/dropdown_widget.dart';
 
@@ -142,10 +143,9 @@ class _EditLaporanPekerjaanState extends State<EditLaporanPekerjaan> {
                       height: 42,
                       child: CachedNetworkImage(
                         imageUrl: fotoProfile,
-                        progressIndicatorBuilder:
-                            (context, url, downloadProgress) =>
-                                CircularProgressIndicator(
-                                    value: downloadProgress.progress),
+                        progressIndicatorBuilder: (_, __, downloadProgress) =>
+                            LoadingImg(
+                                valueProggress: downloadProgress.progress),
                         errorWidget: (context, url, error) =>
                             const Icon(Icons.error),
                       ),
