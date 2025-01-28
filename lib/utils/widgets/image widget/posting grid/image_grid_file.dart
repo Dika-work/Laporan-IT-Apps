@@ -3,8 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
-import 'package:iconsax/iconsax.dart';
-import 'package:laporan/utils/constant/custom_size.dart';
 
 import 'full_image_posting.dart';
 
@@ -74,8 +72,8 @@ class _ImageGridFileWidgetState extends State<ImageGridFileWidget> {
                                 onTap: () {
                                   Get.to(() => FullImagePosting(
                                         images: widget.imageFiles,
-                                        onDeleteImage: (index) {
-                                          _deleteImage(index);
+                                        onDeleteImage: (delIndex) {
+                                          _deleteImage(delIndex);
                                         },
                                       ));
                                 },
@@ -103,8 +101,8 @@ class _ImageGridFileWidgetState extends State<ImageGridFileWidget> {
                         onTap: () {
                           Get.to(() => FullImagePosting(
                                 images: widget.imageFiles,
-                                onDeleteImage: (index) {
-                                  _deleteImage(index);
+                                onDeleteImage: (delIndex) {
+                                  _deleteImage(delIndex);
                                 },
                               ));
                         },
@@ -114,65 +112,6 @@ class _ImageGridFileWidgetState extends State<ImageGridFileWidget> {
                     },
                     childCount:
                         displayedImages.length, // Tampilkan maksimal 6 gambar
-                  ),
-                ),
-              // Tombol Edit dan ikon lainnya jika gambar lebih dari satu
-              if (widget.imageFiles.length > 1)
-                Positioned(
-                  top: 10,
-                  left: 8,
-                  right: 8,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Get.to(() => FullImagePosting(
-                                images: widget.imageFiles,
-                                onDeleteImage: (index) {
-                                  _deleteImage(index);
-                                },
-                              ));
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(
-                                  CustomSize.borderRadiusMd)),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.edit,
-                                size: 18,
-                              ),
-                              Text(
-                                'Edit (${widget.imageFiles.length})',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.copyWith(fontSize: 14),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: () {
-                          Get.to(() => FullImagePosting(
-                                images: widget.imageFiles,
-                                onDeleteImage: (index) {
-                                  _deleteImage(index);
-                                },
-                              ));
-                        },
-                        child: CircleAvatar(
-                            backgroundColor: Colors.white.withOpacity(.8),
-                            child: const Icon(Iconsax.maximize,
-                                color: Colors.black)),
-                      )
-                    ],
                   ),
                 ),
             ],
@@ -221,7 +160,9 @@ class _ImageGridFileWidgetState extends State<ImageGridFileWidget> {
 
   _deleteImage(int index) {
     setState(() {
-      widget.imageFiles.removeAt(index); // Hapus gambar berdasarkan index
+      if (index >= 0 && index < widget.imageFiles.length) {
+        widget.imageFiles.removeAt(index); // Hapus hanya jika indeks valid
+      }
     });
   }
 }

@@ -28,7 +28,7 @@ class RegisterController extends GetxController {
 
   final diomultipart.Dio _dio = diomultipart.Dio(
     diomultipart.BaseOptions(
-      baseUrl: 'http://10.3.80.4:8080', // Ganti dengan URL backend Anda
+      baseUrl: 'http://192.168.1.3:8080', // Ganti dengan URL backend Anda
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
     ),
@@ -73,7 +73,7 @@ class RegisterController extends GetxController {
     if (selectedImage.value == null) {
       isLoading.value = false;
       SnackbarLoader.errorSnackBar(
-        title: 'Error',
+        title: 'Oops',
         message: 'Gambar pengguna harus diunggah.',
       );
       return;
@@ -94,17 +94,17 @@ class RegisterController extends GetxController {
       final response = await _dio.post('/register-user', data: formData);
 
       if (response.statusCode == 201) {
-        SnackbarLoader.successSnackBar(
-          title: 'Success',
-          message: response.data['message'] ?? 'User berhasil ditambahkan',
-        );
+        Get.back();
 
         usernameC.clear();
         passC.clear();
         confirmPassC.clear();
         selectedImage.value = null;
 
-        Get.back();
+        SnackbarLoader.successSnackBar(
+          title: 'Success',
+          message: response.data['message'] ?? 'User berhasil ditambahkan',
+        );
       } else {
         SnackbarLoader.errorSnackBar(
             title: 'Oops👻',

@@ -80,10 +80,10 @@ class _FullImagePostingState extends State<FullImagePosting> {
                     child: IconButton(
                       onPressed: () {
                         setState(() {
-                          widget.images.removeAt(index);
+                          widget.onDeleteImage(index); // Panggil callback
                         });
-                        widget.onDeleteImage(index);
-                      }, // Menghapus gambar
+                      },
+                      // Menghapus gambar
                       icon: const Icon(Icons.close, color: Colors.white),
                     ),
                   ),
