@@ -29,7 +29,7 @@ class PostingBugController extends GetxController {
 
   final diomultipart.Dio _dio = diomultipart.Dio(
     diomultipart.BaseOptions(
-      baseUrl: 'http://10.3.80.4:8080', // Ganti dengan URL backend Anda
+      baseUrl: 'http://192.168.1.8:8080', // Ganti dengan URL backend Anda
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
     ),
@@ -44,13 +44,7 @@ class PostingBugController extends GetxController {
       if (image != null) {
         newImages.add(File(image.path)); // Tambahkan ke newImages
       } else {
-        Get.snackbar(
-          'Error',
-          'Tidak ada gambar yang diambil.',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
+        return;
       }
     } else {
       // Ambil banyak gambar dari galeri

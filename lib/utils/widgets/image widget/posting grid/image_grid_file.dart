@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
+import '../../../constant/custom_size.dart';
 import 'full_image_posting.dart';
 
 class ImageGridFileWidget extends StatefulWidget {
@@ -112,6 +114,65 @@ class _ImageGridFileWidgetState extends State<ImageGridFileWidget> {
                     },
                     childCount:
                         displayedImages.length, // Tampilkan maksimal 6 gambar
+                  ),
+                ),
+
+              if (widget.imageFiles.length > 1)
+                Positioned(
+                  top: 10,
+                  left: 8,
+                  right: 8,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Get.to(() => FullImagePosting(
+                                images: widget.imageFiles,
+                                onDeleteImage: (index) {
+                                  _deleteImage(index);
+                                },
+                              ));
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(
+                                  CustomSize.borderRadiusMd)),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.edit,
+                                size: 18,
+                              ),
+                              Text(
+                                'Edit (${widget.imageFiles.length})',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.copyWith(fontSize: 14),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: () {
+                          Get.to(() => FullImagePosting(
+                                images: widget.imageFiles,
+                                onDeleteImage: (index) {
+                                  _deleteImage(index);
+                                },
+                              ));
+                        },
+                        child: CircleAvatar(
+                            backgroundColor: Colors.white.withOpacity(.8),
+                            child: const Icon(Iconsax.maximize,
+                                color: Colors.black)),
+                      )
+                    ],
                   ),
                 ),
             ],

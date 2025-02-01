@@ -9,7 +9,6 @@ class LoginView extends GetView<LoginController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -21,8 +20,8 @@ class LoginView extends GetView<LoginController> {
           const Spacer(),
           Form(
             key: controller.formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: ListView(
+              shrinkWrap: true,
               children: [
                 Padding(
                   padding:
@@ -94,7 +93,7 @@ class LoginView extends GetView<LoginController> {
                 const SizedBox(height: CustomSize.spaceBtwItems),
                 Obx(
                   () => controller.isLoading.isTrue
-                      ? const CircularProgressIndicator()
+                      ? const Center(child: CircularProgressIndicator())
                       : Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: CustomSize.md),
