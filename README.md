@@ -8,6 +8,7 @@ Aplikasi ini dibuat untuk mempermudah proses pelaporan dan penanganan masalah IT
 * Bug atau error pada aplikasi lain.<br>
 * Masalah perangkat keras (printer kehabisan tinta, komputer tidak menyala, dll.).<br>
 * Kendala jaringan atau akses sistem.<br>
+
 ✔️ Melihat status laporan yang telah dikirimkan.<br>
 ✔️ Mendapat notifikasi ketika laporan diproses atau telah diselesaikan.<br>
 
