@@ -18,7 +18,7 @@ class LoginController extends GetxController {
 
   final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: 'http://192.168.1.8:8080', // Ganti dengan URL backend Anda
+      baseUrl: 'http://192.168.1.9:8080', // Ganti dengan URL backend Anda
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
     ),
@@ -45,11 +45,15 @@ class LoginController extends GetxController {
     }
 
     try {
+      String deviceToken = localStorage.read('device_token');
+      print('INI DEVICE TOKEN NYA : $deviceToken');
+
       final response = await _dio.post(
         '/login',
         data: {
           'username': usernameC.text,
           'password': passC.text,
+          'device_token': deviceToken,
         },
       );
 
@@ -85,16 +89,9 @@ class LoginController extends GetxController {
             title: 'Oops👻',
             message: response.data['message'] ?? 'Terjadi kesalahan');
       }
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 429) {
-        SnackbarLoader.warningSnackBar(
-            title: 'Limit Exceeded',
-            message: 'Terlalu banyak permintaan. Coba lagi nanti');
-      } else {
-        SnackbarLoader.warningSnackBar(
-            title: 'Limit Exceeded',
-            message: e.response?.data['message'] ?? 'Terjadi kesalahan');
-      }
+    } catch (e) {
+      SnackbarLoader.warningSnackBar(title: 'Oops', message: '${e.toString()}');
+      print('ini err yg terjadi di func login: ${e.toString()}');
     } finally {
       isLoading.value = false;
     }

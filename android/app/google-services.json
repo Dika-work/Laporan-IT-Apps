@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "856172251883",
+    "project_id": "laporan-kerja-71c97",
+    "storage_bucket": "laporan-kerja-71c97.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:856172251883:android:80e3f0b53d4e6d71b90cae",
+        "android_client_info": {
+          "package_name": "com.example.laporan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCbUSm4gkaxN3i9pbtTVA-jSzkkYGBs5OQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -24,7 +24,7 @@ class ProblemDataForAdmin {
   });
 
   factory ProblemDataForAdmin.fromJson(Map<String, dynamic> json) {
-    const baseUrl = 'http://192.168.1.8:8080';
+    const baseUrl = 'http://192.168.1.9:8080';
     return ProblemDataForAdmin(
         id: json['id'] ?? '',
         fotoProfile: json['user_foto_user'] != null
