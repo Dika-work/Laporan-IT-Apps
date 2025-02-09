@@ -96,6 +96,17 @@ Future<void> setupFlutterNotifications() async {
       return;
     }
 
+    // 🆕 **Jika aksi adalah laporan_status**
+    if (message.data['action'] == 'laporan_status') {
+      showNotification(
+        title: title,
+        body: body,
+        channelId: 'laporan_status_channel_id',
+        channelName: 'Laporan Status Notifications',
+      );
+      return;
+    }
+
     // 📢 **Jika notifikasi biasa**
     // if (message.notification != null) {
     //   debugPrint("📢 Notifikasi biasa: $title");
